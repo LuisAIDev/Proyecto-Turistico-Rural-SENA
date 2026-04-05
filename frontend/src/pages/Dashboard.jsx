@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
 import api from '../services/api';
@@ -45,7 +45,8 @@ const ICON_MAP = {
 };
 
 function Dashboard() {
-  const { logout } = useAuth();
+  // 1️⃣ Extraemos el usuario para conocer su rol
+  const { logout, usuario } = useAuth();
   const [fincas, setFincas] = useState([]);
   const [todosLosServicios, setTodosLosServicios] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -75,10 +76,11 @@ function Dashboard() {
         api.get('/servicios'), // Endpoint para traer el catálogo de servicios
       ]);
 
-      setFincas(resFincas.data);
-      setTodosLosServicios(resServicios.data);
+      // 2️⃣ Adaptamos la respuesta al nuevo estándar del backend (data.data)
+      setFincas(resFincas.data.data || resFincas.data);
+      setTodosLosServicios(resServicios.data.data || resServicios.data);
 
-      const reservas = resReservas.data;
+      const reservas = resReservas.data.data || resReservas.data;
       let ingresosAcumulados = 0;
       const resumenPorDia = {};
 
@@ -228,8 +230,11 @@ function Dashboard() {
             Panel <span className="text-green-700">Administrativo</span>
           </h2>
           <div className="flex items-center gap-4">
+            {/* Si quieres, también podrías cambiar la inicial dinámica aquí, pero dejaremos el diseño intacto */}
             <span className="text-xs font-black text-gray-400 uppercase tracking-widest">Cartagena, CO</span>
-            <div className="h-8 w-8 bg-green-100 rounded-full flex items-center justify-center text-green-700 font-bold">L</div>
+            <div className="h-8 w-8 bg-green-100 rounded-full flex items-center justify-center text-green-700 font-bold">
+              {usuario?.nombre ? usuario.nombre.charAt(0).toUpperCase() : 'L'}
+            </div>
           </div>
         </header>
 
@@ -280,9 +285,13 @@ function Dashboard() {
                 <h3 className="text-xl font-black text-gray-800 uppercase italic tracking-tighter">Inventario Rural</h3>
                 <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Gestión de Alojamientos y Servicios</p>
               </div>
-              <button onClick={() => setShowModal(true)} className="bg-green-700 text-white px-8 py-3 rounded-2xl font-black hover:bg-green-800 shadow-xl transition-all flex items-center gap-2 text-xs uppercase tracking-widest">
-                <Plus size={18} /> Nueva Finca
-              </button>
+              
+              {/* 3️⃣ Renderizado Condicional: Solo el Admin ve el botón de Nueva Finca */}
+              {usuario?.rol === 'admin' && (
+                <button onClick={() => setShowModal(true)} className="bg-green-700 text-white px-8 py-3 rounded-2xl font-black hover:bg-green-800 shadow-xl transition-all flex items-center gap-2 text-xs uppercase tracking-widest">
+                  <Plus size={18} /> Nueva Finca
+                </button>
+              )}
             </div>
             <div className="overflow-x-auto p-4">
               <table className="w-full text-left">
@@ -291,7 +300,10 @@ function Dashboard() {
                     <th className="px-6 py-4">Propiedad</th>
                     <th className="px-6 py-4">Comodidades</th>
                     <th className="px-6 py-4">Tarifa</th>
-                    <th className="px-6 py-4 text-center">Gestión</th>
+                    {/* Renderizado Condicional: Columna de Gestión solo para Admin */}
+                    {usuario?.rol === 'admin' && (
+                      <th className="px-6 py-4 text-center">Gestión</th>
+                    )}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
@@ -319,10 +331,14 @@ function Dashboard() {
                       <td className="px-6 py-6 font-black text-green-700">
                         ${new Intl.NumberFormat('es-CO').format(finca.precio_noche || 0)}
                       </td>
-                      <td className="px-6 py-6 text-center space-x-4">
-                        <button onClick={() => prepararEdicion(finca)} className="text-blue-600 font-black text-[10px] uppercase tracking-widest hover:text-blue-800">Editar</button>
-                        <button onClick={() => handleDelete(finca.id)} className="text-red-400 font-black text-[10px] uppercase tracking-widest hover:text-red-600">Eliminar</button>
-                      </td>
+                      
+                      {/* 4️⃣ Renderizado Condicional: Botones de Editar/Eliminar solo para Admin */}
+                      {usuario?.rol === 'admin' && (
+                        <td className="px-6 py-6 text-center space-x-4">
+                          <button onClick={() => prepararEdicion(finca)} className="text-blue-600 font-black text-[10px] uppercase tracking-widest hover:text-blue-800">Editar</button>
+                          <button onClick={() => handleDelete(finca.id)} className="text-red-400 font-black text-[10px] uppercase tracking-widest hover:text-red-600">Eliminar</button>
+                        </td>
+                      )}
                     </tr>
                   ))}
                 </tbody>
