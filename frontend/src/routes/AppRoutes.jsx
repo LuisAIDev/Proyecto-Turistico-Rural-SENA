@@ -3,8 +3,9 @@ import Login from '../pages/Login';
 import Dashboard from '../pages/Dashboard';
 import Reservas from '../pages/Reservas';
 import Facturacion from '../pages/Facturacion';
-import Servicios from '../pages/Servicios'; // <--- NUEVA IMPORTACIÓN PARA EL MÓDULO DE SERVICIOS
+import Servicios from '../pages/Servicios'; 
 import Huespedes from '../components/Huespedes';
+import Fincas from '../pages/Fincas'; // <--- NUEVA IMPORTACIÓN PARA EL MÓDULO DE FINCAS
 import PrivateRoutes from './PrivateRoutes';
 
 function AppRouter() {
@@ -29,6 +30,12 @@ function AppRouter() {
             element={<Dashboard />}
           />
 
+          {/* NUEVA RUTA: Gestión independiente de Fincas / Alojamientos */}
+          <Route
+            path="/fincas"
+            element={<Fincas />}
+          />
+
           {/* Gestión de Reservas */}
           <Route
             path="/reservas"
@@ -47,7 +54,7 @@ function AppRouter() {
             element={<Huespedes />}
           />
 
-          {/* NUEVA RUTA: Gestión de Catálogo de Servicios */}
+          {/* Gestión de Catálogo de Servicios */}
           <Route
             path="/servicios"
             element={<Servicios />}

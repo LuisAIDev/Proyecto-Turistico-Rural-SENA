@@ -15,6 +15,7 @@ import {
 } from 'recharts';
 import {
   LayoutDashboard,
+  Home, // <-- Icono de Home agregado para Fincas
   Calendar,
   Users,
   LogOut,
@@ -64,7 +65,7 @@ function Dashboard() {
     ubicacion: '',
     capacidad: '',
     precio_noche: '',
-    servicios_ids: [] // Array de IDs seleccionados
+    servicios_ids: [], // Array de IDs seleccionados
   });
 
   const cargarTodo = async () => {
@@ -125,7 +126,7 @@ function Dashboard() {
       ubicacion: finca.ubicacion,
       capacidad: finca.capacidad,
       precio_noche: finca.precio_noche,
-      servicios_ids: finca.servicios ? finca.servicios.map(s => s.id) : []
+      servicios_ids: finca.servicios ? finca.servicios.map((s) => s.id) : [],
     });
     setShowModal(true);
   };
@@ -138,15 +139,18 @@ function Dashboard() {
       ubicacion: '',
       capacidad: '',
       precio_noche: '',
-      servicios_ids: []
+      servicios_ids: [],
     });
   };
 
   const toggleServicio = (id) => {
-    setNuevaFinca(prev => {
+    setNuevaFinca((prev) => {
       const exists = prev.servicios_ids.includes(id);
       if (exists) {
-        return { ...prev, servicios_ids: prev.servicios_ids.filter(sid => sid !== id) };
+        return {
+          ...prev,
+          servicios_ids: prev.servicios_ids.filter((sid) => sid !== id),
+        };
       } else {
         return { ...prev, servicios_ids: [...prev.servicios_ids, id] };
       }
@@ -201,24 +205,52 @@ function Dashboard() {
           SENA <span className="text-green-400">RURAL</span>
         </div>
         <nav className="flex-1 p-4 space-y-2">
-          <Link to="/dashboard" className="flex items-center gap-3 p-3 bg-green-800 rounded-xl font-bold shadow-lg text-green-100">
-            <LayoutDashboard size={20} className="text-green-400" /> Dashboard
+          <Link
+            to="/dashboard"
+            className="flex items-center gap-3 p-3 bg-green-800 rounded-xl font-bold shadow-lg text-green-100">
+            <LayoutDashboard
+              size={20}
+              className="text-green-400"
+            />{' '}
+            Dashboard
           </Link>
-          <Link to="/reservas" className="flex items-center gap-3 p-3 hover:bg-green-700 rounded-xl transition-all font-bold text-green-100">
+
+          {/* Módulo de Fincas Agregado Aquí */}
+          <Link
+            to="/fincas"
+            className="flex items-center gap-3 p-3 hover:bg-green-700 rounded-xl transition-all font-bold text-green-100">
+            <Home size={20} /> Fincas
+          </Link>
+
+          <Link
+            to="/reservas"
+            className="flex items-center gap-3 p-3 hover:bg-green-700 rounded-xl transition-all font-bold text-green-100">
             <Calendar size={20} /> Reservas
           </Link>
-          <Link to="/huespedes" className="flex items-center gap-3 p-3 hover:bg-green-700 rounded-xl transition-all font-bold text-green-100">
+          <Link
+            to="/huespedes"
+            className="flex items-center gap-3 p-3 hover:bg-green-700 rounded-xl transition-all font-bold text-green-100">
             <Users size={20} /> Huéspedes
           </Link>
-          <Link to="/servicios" className="flex items-center gap-3 p-3 hover:bg-green-700 rounded-xl transition-all font-bold text-green-100 italic">
-            <MousePointer2 size={20} className="text-green-400" /> Otros Servicios
+          <Link
+            to="/servicios"
+            className="flex items-center gap-3 p-3 hover:bg-green-700 rounded-xl transition-all font-bold text-green-100 italic">
+            <MousePointer2
+              size={20}
+              className="text-green-400"
+            />{' '}
+            Otros Servicios
           </Link>
-          <Link to="/facturacion" className="flex items-center gap-3 p-3 hover:bg-green-700 rounded-xl transition-all font-bold text-green-100">
+          <Link
+            to="/facturacion"
+            className="flex items-center gap-3 p-3 hover:bg-green-700 rounded-xl transition-all font-bold text-green-100">
             <BadgeDollarSign size={20} /> Facturación
           </Link>
         </nav>
         <div className="p-4 border-t border-green-800">
-          <button onClick={logout} className="flex items-center gap-3 w-full p-3 text-red-300 font-bold hover:bg-red-900/20 rounded-xl transition-all">
+          <button
+            onClick={logout}
+            className="flex items-center gap-3 w-full p-3 text-red-300 font-bold hover:bg-red-900/20 rounded-xl transition-all">
             <LogOut size={20} /> CERRAR SESIÓN
           </button>
         </div>
@@ -231,7 +263,9 @@ function Dashboard() {
           </h2>
           <div className="flex items-center gap-4">
             {/* Si quieres, también podrías cambiar la inicial dinámica aquí, pero dejaremos el diseño intacto */}
-            <span className="text-xs font-black text-gray-400 uppercase tracking-widest">Cartagena, CO</span>
+            <span className="text-xs font-black text-gray-400 uppercase tracking-widest">
+              Cartagena, CO
+            </span>
             <div className="h-8 w-8 bg-green-100 rounded-full flex items-center justify-center text-green-700 font-bold">
               {usuario?.nombre ? usuario.nombre.charAt(0).toUpperCase() : 'L'}
             </div>
@@ -243,35 +277,68 @@ function Dashboard() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-white p-8 rounded-[2rem] shadow-xl border-l-[10px] border-green-600">
-              <p className="text-gray-400 text-[10px] font-black uppercase tracking-[0.2em] mb-1">Recaudado Total</p>
+              <p className="text-gray-400 text-[10px] font-black uppercase tracking-[0.2em] mb-1">
+                Recaudado Total
+              </p>
               <p className="text-4xl font-black text-gray-800 tracking-tighter">
                 ${new Intl.NumberFormat('es-CO').format(stats.totalIngresos)}
               </p>
             </div>
             <div className="bg-white p-8 rounded-[2rem] shadow-xl border-l-[10px] border-blue-600">
-              <p className="text-gray-400 text-[10px] font-black uppercase tracking-[0.2em] mb-1">Volumen Reservas</p>
+              <p className="text-gray-400 text-[10px] font-black uppercase tracking-[0.2em] mb-1">
+                Volumen Reservas
+              </p>
               <p className="text-4xl font-black text-gray-800 tracking-tighter">
-                {stats.totalReservas} <span className="text-sm font-bold text-gray-300 uppercase italic">Efectivas</span>
+                {stats.totalReservas}{' '}
+                <span className="text-sm font-bold text-gray-300 uppercase italic">
+                  Efectivas
+                </span>
               </p>
             </div>
           </div>
 
           <div className="bg-white p-8 rounded-[2.5rem] shadow-2xl border border-white">
-            <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-6">Tendencia Semanal</h3>
+            <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-6">
+              Tendencia Semanal
+            </h3>
             <div className="h-72 w-full">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer
+                width="100%"
+                height="100%">
                 <BarChart data={stats.datosGrafica}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                  <XAxis dataKey="fecha" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 'bold' }} />
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    vertical={false}
+                    stroke="#f0f0f0"
+                  />
+                  <XAxis
+                    dataKey="fecha"
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fontSize: 10, fontWeight: 'bold' }}
+                  />
                   <YAxis hide />
                   <Tooltip
                     cursor={{ fill: '#f8fafc' }}
-                    contentStyle={{ borderRadius: '15px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)' }}
-                    formatter={(val) => [`$${new Intl.NumberFormat('es-CO').format(val)}`, 'Ingreso']}
+                    contentStyle={{
+                      borderRadius: '15px',
+                      border: 'none',
+                      boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)',
+                    }}
+                    formatter={(val) => [
+                      `$${new Intl.NumberFormat('es-CO').format(val)}`,
+                      'Ingreso',
+                    ]}
                   />
-                  <Bar dataKey="ganancia" radius={[10, 10, 0, 0]} barSize={40}>
+                  <Bar
+                    dataKey="ganancia"
+                    radius={[10, 10, 0, 0]}
+                    barSize={40}>
                     {stats.datosGrafica.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#14532D' : '#22C55E'} />
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={index % 2 === 0 ? '#14532D' : '#22C55E'}
+                      />
                     ))}
                   </Bar>
                 </BarChart>
@@ -282,13 +349,19 @@ function Dashboard() {
           <div className="bg-white rounded-[3rem] shadow-2xl border border-gray-100 overflow-hidden">
             <div className="p-10 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
               <div>
-                <h3 className="text-xl font-black text-gray-800 uppercase italic tracking-tighter">Inventario Rural</h3>
-                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Gestión de Alojamientos y Servicios</p>
+                <h3 className="text-xl font-black text-gray-800 uppercase italic tracking-tighter">
+                  Inventario Rural
+                </h3>
+                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
+                  Gestión de Alojamientos y Servicios
+                </p>
               </div>
-              
+
               {/* 3️⃣ Renderizado Condicional: Solo el Admin ve el botón de Nueva Finca */}
               {usuario?.rol === 'admin' && (
-                <button onClick={() => setShowModal(true)} className="bg-green-700 text-white px-8 py-3 rounded-2xl font-black hover:bg-green-800 shadow-xl transition-all flex items-center gap-2 text-xs uppercase tracking-widest">
+                <button
+                  onClick={() => setShowModal(true)}
+                  className="bg-green-700 text-white px-8 py-3 rounded-2xl font-black hover:bg-green-800 shadow-xl transition-all flex items-center gap-2 text-xs uppercase tracking-widest">
                   <Plus size={18} /> Nueva Finca
                 </button>
               )}
@@ -308,35 +381,59 @@ function Dashboard() {
                 </thead>
                 <tbody className="divide-y divide-gray-50">
                   {fincas.map((finca) => (
-                    <tr key={finca.id} className="hover:bg-green-50/50 transition-colors group">
+                    <tr
+                      key={finca.id}
+                      className="hover:bg-green-50/50 transition-colors group">
                       <td className="px-6 py-6">
-                        <div className="font-black text-gray-800 uppercase text-sm">{finca.nombre}</div>
+                        <div className="font-black text-gray-800 uppercase text-sm">
+                          {finca.nombre}
+                        </div>
                         <div className="text-gray-400 text-[10px] flex items-center gap-1 uppercase tracking-tighter">
-                          <MapPin size={10} className="text-green-600" /> {finca.ubicacion}
+                          <MapPin
+                            size={10}
+                            className="text-green-600"
+                          />{' '}
+                          {finca.ubicacion}
                         </div>
                       </td>
                       <td className="px-6 py-6">
                         <div className="flex flex-wrap gap-1">
                           {finca.servicios && finca.servicios.length > 0 ? (
                             finca.servicios.map((s) => (
-                              <span key={s.id} className="bg-green-100 text-green-700 text-[9px] font-black px-2 py-0.5 rounded-full uppercase flex items-center gap-1">
-                                {ICON_MAP[s.icono] || <CheckCircle2 size={8} />} {s.nombre}
+                              <span
+                                key={s.id}
+                                className="bg-green-100 text-green-700 text-[9px] font-black px-2 py-0.5 rounded-full uppercase flex items-center gap-1">
+                                {ICON_MAP[s.icono] || <CheckCircle2 size={8} />}{' '}
+                                {s.nombre}
                               </span>
                             ))
                           ) : (
-                            <span className="text-[9px] text-gray-300 italic uppercase">Sin servicios</span>
+                            <span className="text-[9px] text-gray-300 italic uppercase">
+                              Sin servicios
+                            </span>
                           )}
                         </div>
                       </td>
                       <td className="px-6 py-6 font-black text-green-700">
-                        ${new Intl.NumberFormat('es-CO').format(finca.precio_noche || 0)}
+                        $
+                        {new Intl.NumberFormat('es-CO').format(
+                          finca.precio_noche || 0,
+                        )}
                       </td>
-                      
+
                       {/* 4️⃣ Renderizado Condicional: Botones de Editar/Eliminar solo para Admin */}
                       {usuario?.rol === 'admin' && (
                         <td className="px-6 py-6 text-center space-x-4">
-                          <button onClick={() => prepararEdicion(finca)} className="text-blue-600 font-black text-[10px] uppercase tracking-widest hover:text-blue-800">Editar</button>
-                          <button onClick={() => handleDelete(finca.id)} className="text-red-400 font-black text-[10px] uppercase tracking-widest hover:text-red-600">Eliminar</button>
+                          <button
+                            onClick={() => prepararEdicion(finca)}
+                            className="text-blue-600 font-black text-[10px] uppercase tracking-widest hover:text-blue-800">
+                            Editar
+                          </button>
+                          <button
+                            onClick={() => handleDelete(finca.id)}
+                            className="text-red-400 font-black text-[10px] uppercase tracking-widest hover:text-red-600">
+                            Eliminar
+                          </button>
                         </td>
                       )}
                     </tr>
@@ -355,23 +452,55 @@ function Dashboard() {
             <h3 className="text-2xl font-black mb-6 text-gray-800 uppercase italic tracking-tighter">
               {editandoId ? 'Actualizar Propiedad' : 'Registrar Propiedad'}
             </h3>
-            <form onSubmit={handleSave} className="space-y-4">
-              <InputField label="Nombre de la Finca" value={nuevaFinca.nombre} onChange={(val) => setNuevaFinca({ ...nuevaFinca, nombre: val })} />
-              <InputField label="Ubicación" value={nuevaFinca.ubicacion} onChange={(val) => setNuevaFinca({ ...nuevaFinca, ubicacion: val })} />
-              
+            <form
+              onSubmit={handleSave}
+              className="space-y-4">
+              <InputField
+                label="Nombre de la Finca"
+                value={nuevaFinca.nombre}
+                onChange={(val) =>
+                  setNuevaFinca({ ...nuevaFinca, nombre: val })
+                }
+              />
+              <InputField
+                label="Ubicación"
+                value={nuevaFinca.ubicacion}
+                onChange={(val) =>
+                  setNuevaFinca({ ...nuevaFinca, ubicacion: val })
+                }
+              />
+
               <div className="grid grid-cols-2 gap-4">
-                <InputField label="Capacidad" type="number" value={nuevaFinca.capacidad} onChange={(val) => setNuevaFinca({ ...nuevaFinca, capacidad: val })} />
-                <InputField label="Precio / Noche" type="number" value={nuevaFinca.precio_noche} onChange={(val) => setNuevaFinca({ ...nuevaFinca, precio_noche: val })} />
+                <InputField
+                  label="Capacidad"
+                  type="number"
+                  value={nuevaFinca.capacidad}
+                  onChange={(val) =>
+                    setNuevaFinca({ ...nuevaFinca, capacidad: val })
+                  }
+                />
+                <InputField
+                  label="Precio / Noche"
+                  type="number"
+                  value={nuevaFinca.precio_noche}
+                  onChange={(val) =>
+                    setNuevaFinca({ ...nuevaFinca, precio_noche: val })
+                  }
+                />
               </div>
 
               {/* Módulo de selección de servicios */}
               <div className="py-4">
-                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 mb-3 block">Servicios Incluidos</label>
+                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 mb-3 block">
+                  Servicios Incluidos
+                </label>
                 <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto p-2 bg-gray-50 rounded-2xl border border-gray-100">
-                  {todosLosServicios.map(servicio => (
-                    <label key={servicio.id} className="flex items-center gap-2 p-2 rounded-xl hover:bg-white cursor-pointer transition-all border border-transparent hover:border-green-100">
-                      <input 
-                        type="checkbox" 
+                  {todosLosServicios.map((servicio) => (
+                    <label
+                      key={servicio.id}
+                      className="flex items-center gap-2 p-2 rounded-xl hover:bg-white cursor-pointer transition-all border border-transparent hover:border-green-100">
+                      <input
+                        type="checkbox"
                         className="rounded text-green-600 focus:ring-green-500"
                         checked={nuevaFinca.servicios_ids.includes(servicio.id)}
                         onChange={() => toggleServicio(servicio.id)}
@@ -385,8 +514,15 @@ function Dashboard() {
               </div>
 
               <div className="flex gap-4 mt-6">
-                <button type="button" onClick={handleCloseModal} className="flex-1 py-4 font-black text-gray-400 uppercase text-[10px] tracking-widest">Cancelar</button>
-                <button type="submit" className="flex-1 bg-green-700 text-white py-4 font-black rounded-2xl shadow-xl hover:bg-green-800 uppercase text-[10px] tracking-widest">
+                <button
+                  type="button"
+                  onClick={handleCloseModal}
+                  className="flex-1 py-4 font-black text-gray-400 uppercase text-[10px] tracking-widest">
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 bg-green-700 text-white py-4 font-black rounded-2xl shadow-xl hover:bg-green-800 uppercase text-[10px] tracking-widest">
                   {editandoId ? 'Guardar Cambios' : 'Crear Finca'}
                 </button>
               </div>
@@ -400,7 +536,9 @@ function Dashboard() {
 
 const InputField = ({ label, type = 'text', value, onChange }) => (
   <div>
-    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 mb-2 block">{label}</label>
+    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 mb-2 block">
+      {label}
+    </label>
     <input
       type={type}
       required
