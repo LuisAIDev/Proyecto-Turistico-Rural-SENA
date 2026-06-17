@@ -12,6 +12,7 @@ import serviciosRoutes from './src/routes/servicios.js';
 dotenv.config();
 
 const app = express();
+const PORT = process.env.PORT || 4000;
 
 // Configuración de CORS
 app.use(
@@ -24,29 +25,29 @@ app.use(
 
 app.use(express.json());
 
-// Rutas base
+// Ruta de bienvenida / Verificación de salud de la API
+app.get('/', (req, res) => {
+  res.send('Servidor SENA RURAL corriendo en puerto ' + PORT);
+});
+
+// Rutas base del ecosistema
 app.use('/api/usuarios', usuariosRoutes);
 app.use('/api/fincas', fincasRoutes);
 app.use('/api/reservas', reservasRoutes);
 app.use('/api/huespedes', huespedesRoutes);
-// Cambiado a /servicios para que coincida con el Dashboard.jsx
-app.use('/api/servicios', serviciosRoutes); 
-
-const PORT = process.env.PORT || 4000;
+app.use('/api/servicios', serviciosRoutes);
 
 // Middleware para capturar rutas no encontradas (404)
 app.use((req, res, next) => {
-  res.status(404).json({ error: 'Ruta no encontrada en el ecosistema SENA RURAL' });
+  res
+    .status(404)
+    .json({ error: 'Ruta no encontrada en el ecosistema SENA RURAL' });
 });
 
 // Middleware de manejo de errores global (Evita que el servidor muera)
 app.use((err, req, res, next) => {
   console.error('❌ Error detectado:', err.message);
   res.status(500).json({ error: 'Error interno del servidor' });
-});
-
-app.get('/', (req, res) => {
-  res.send('Servidor SENA RURAL corriendo en puerto ' + PORT);
 });
 
 app.listen(PORT, () => {
@@ -56,5 +57,5 @@ app.listen(PORT, () => {
   console.log('  -> /api/fincas');
   console.log('  -> /api/reservas');
   console.log('  -> /api/huespedes');
-  console.log('  -> /api/servicios'); // Actualizado
+  console.log('  -> /api/servicios');
 });

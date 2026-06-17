@@ -6,7 +6,7 @@ dotenv.config();
 const { Pool } = pg;
 
 // 1. Configuración de la base de datos
-const pool = new Pool({
+export const pool = new Pool({
   user: process.env.DB_USER,
   host: process.env.DB_HOST,
   database: process.env.DB_NAME,
@@ -17,8 +17,9 @@ const pool = new Pool({
 // 2. Verificación de conexión
 pool
   .connect()
-  .then(() => {
+  .then((client) => {
     console.log('🔥 Conectado correctamente a PostgreSQL');
+    client.release();
   })
   .catch((err) => {
     console.error('❌ Error conectando a PostgreSQL:', err);

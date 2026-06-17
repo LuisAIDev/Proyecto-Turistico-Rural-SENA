@@ -1,6 +1,19 @@
 import pool from '../config/db.js';
 import argon2 from 'argon2';
+import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+
+const verificarPassword = async (hash, password) => {
+  if (hash?.startsWith('$argon2')) {
+    return argon2.verify(hash, password);
+  }
+
+  if (hash?.startsWith('$2a$') || hash?.startsWith('$2b$')) {
+    return bcrypt.compare(password, hash);
+  }
+
+  return false;
+};
 
 const usuariosController = {
   /* =====================================================
@@ -29,8 +42,8 @@ const usuariosController = {
 
       const usuario = result.rows[0];
 
-      // 🔐 Verificar contraseña con ARGON2
-      const passwordValida = await argon2.verify(usuario.password, password);
+      // 🔐 Verificar contraseña con ARGON2 o BCRYPT segun el hash guardado
+      const passwordValida = await verificarPassword(usuario.password, password);
 
       if (!passwordValida) {
         return res.status(401).json({
