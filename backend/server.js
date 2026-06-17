@@ -8,6 +8,7 @@ import fincasRoutes from './src/routes/fincas-routes.js';
 import reservasRoutes from './src/routes/reservas-routes.js';
 import huespedesRoutes from './src/routes/huespedes-routes.js';
 import serviciosRoutes from './src/routes/servicios.js';
+import publicRoutes from './src/routes/public-routes.js';
 
 dotenv.config();
 
@@ -31,6 +32,7 @@ app.get('/', (req, res) => {
 });
 
 // Rutas base del ecosistema
+app.use('/api/public', publicRoutes);
 app.use('/api/usuarios', usuariosRoutes);
 app.use('/api/fincas', fincasRoutes);
 app.use('/api/reservas', reservasRoutes);
@@ -54,6 +56,7 @@ app.listen(PORT, () => {
   console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
   console.log('✅ Rutas activas:');
   console.log('  -> /api/usuarios');
+  console.log('  -> /api/public');
   console.log('  -> /api/fincas');
   console.log('  -> /api/reservas');
   console.log('  -> /api/huespedes');

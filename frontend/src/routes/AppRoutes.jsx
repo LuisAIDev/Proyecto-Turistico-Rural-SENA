@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import PublicHome from '../pages/PublicHome';
 import Login from '../pages/Login';
 import Dashboard from '../pages/Dashboard';
 import Reservas from '../pages/Reservas';
@@ -12,7 +13,13 @@ function AppRouter() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Ruta de acceso público */}
+        {/* Ruta pública para clientes */}
+        <Route
+          path="/"
+          element={<PublicHome />}
+        />
+
+        {/* Ruta de acceso administrativo */}
         <Route
           path="/login"
           element={<Login />}
@@ -21,10 +28,6 @@ function AppRouter() {
         {/* Bloque de Rutas Protegidas (Requieren autenticación) */}
         <Route element={<PrivateRoutes />}>
           {/* Dashboard principal */}
-          <Route
-            path="/"
-            element={<Dashboard />}
-          />
           <Route
             path="/dashboard"
             element={<Dashboard />}
