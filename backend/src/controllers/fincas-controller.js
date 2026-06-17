@@ -1,7 +1,6 @@
 import pool from '../config/db.js';
 
 const fincasController = {
-  // 1. Obtener todas las fincas con sus servicios (Estandarizado)
   getAll: async (req, res) => {
     try {
       const query = `
@@ -14,7 +13,6 @@ const fincasController = {
       `;
       const result = await pool.query(query);
 
-      // Respuesta estandarizada
       res.json({
         success: true,
         data: result.rows,
@@ -29,7 +27,6 @@ const fincasController = {
     }
   },
 
-  // 2. Crear una nueva finca (Usando el ID real del usuario logueado)
   create: async (req, res) => {
     const {
       nombre,
@@ -38,11 +35,11 @@ const fincasController = {
       capacidad,
       precio_noche,
       servicios,
+      servicios_ids,
     } = req.body;
 
-    // IMPORTANTE: Ya no usamos el ID 1 "quemado".
-    // Usamos req.usuario.id que viene del token que desciframos en el middleware.
     const usuario_id = req.usuario.id;
+    const serviciosSeleccionados = servicios_ids || servicios || [];
 
     try {
       await pool.query('BEGIN');
@@ -61,11 +58,11 @@ const fincasController = {
         usuario_id,
       ]);
 
-      if (servicios && servicios.length > 0) {
+      if (serviciosSeleccionados.length > 0) {
         await pool.query(
           `INSERT INTO alojamiento_servicios (alojamiento_id, servicio_id) 
            SELECT $1, unnest($2::int[])`,
-          [resultFinca.rows[0].id, servicios],
+          [resultFinca.rows[0].id, serviciosSeleccionados],
         );
       }
 
@@ -84,7 +81,6 @@ const fincasController = {
     }
   },
 
-  // 3. Actualizar una finca (PUNTO CRÍTICO PARA EL PROFESOR)
   update: async (req, res) => {
     const { id } = req.params;
     const { nombre, ubicacion, descripcion, capacidad, precio_noche, estado } =
@@ -125,17 +121,14 @@ const fincasController = {
     }
   },
 
-  // 4. Eliminar una finca (PUNTO CRÍTICO PARA EL PROFESOR)
   delete: async (req, res) => {
     const { id } = req.params;
     try {
-      // Primero eliminamos las relaciones en la tabla intermedia (alojamiento_servicios)
       await pool.query(
         'DELETE FROM alojamiento_servicios WHERE alojamiento_id = $1',
         [id],
       );
 
-      // Luego eliminamos la finca
       const result = await pool.query(
         'DELETE FROM alojamientos WHERE id = $1',
         [id],

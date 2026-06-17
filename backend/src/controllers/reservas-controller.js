@@ -107,7 +107,7 @@ const reservasController = {
       `, [
         alojamiento_id,
         huesped_id,
-        req.user?.id || 1, // usa el usuario autenticado si existe
+        req.usuario?.id || null,
         fecha_entrada,
         fecha_salida,
         total,

@@ -1,4 +1,3 @@
-// CORRECCIÓN: Importación sin llaves para coincidir con export default de db.js
 import pool from '../config/db.js';
 
 const huespedesController = {

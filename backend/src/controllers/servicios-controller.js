@@ -1,4 +1,3 @@
-// Importación corregida para ES Modules (sin llaves y con extensión .js)
 import pool from '../config/db.js';
 
 const serviciosController = {
@@ -103,5 +102,4 @@ const serviciosController = {
   },
 };
 
-// Exportación por defecto para ser usada en routes/servicios.js
 export default serviciosController;

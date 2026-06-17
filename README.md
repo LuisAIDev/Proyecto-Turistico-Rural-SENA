@@ -1,192 +1,199 @@
-🌿 SENA Rural Hub
-Smart SaaS Platform for Rural Hospitality Management
+# SENA Rural Hub
 
-Transformamos la gestión del turismo rural en una operación inteligente, medible y rentable.
+Smart SaaS platform for rural hospitality management.
 
-🚀 Product Vision
+SENA Rural Hub digitaliza la administracion de alojamientos rurales mediante gestion de fincas, reservas, huespedes, servicios adicionales, autenticacion por roles y dashboard con indicadores operativos.
 
-SENA Rural Hub es una plataforma SaaS diseñada para digitalizar y optimizar la administración de alojamientos rurales mediante:
+## Product Vision
 
-Automatización de reservas
-Control de disponibilidad en tiempo real
-Inteligencia de ingresos
-Métricas estratégicas de ocupación
-Seguridad basada en roles
+Muchas fincas rurales gestionan reservas, disponibilidad e ingresos de forma manual o con herramientas separadas. Este proyecto centraliza la operacion en una plataforma web full-stack orientada a datos.
 
-El objetivo es claro:
-Convertir la gestión rural tradicional en una operación moderna, escalable y basada en datos.
+## Core Features
 
-🧠 Value Proposition
+- Autenticacion con JWT.
+- Control de roles para administradores.
+- CRUD de alojamientos rurales.
+- Gestion de huespedes.
+- Motor de reservas con validacion de fechas cruzadas.
+- Calculo automatico de noches e ingresos.
+- Catalogo de servicios adicionales.
+- Dashboard con metricas y visualizacion de datos.
+- Exportacion de reportes en PDF.
 
-Las fincas rurales suelen operar de forma manual o con herramientas fragmentadas.
+## Tech Stack
 
-SENA Rural Hub centraliza todo en una sola plataforma:
+### Frontend
 
-✔ Gestión de propiedades
-✔ Reservas con validación inteligente
-✔ Cálculo automático de facturación
-✔ Dashboard con métricas en tiempo real
-✔ Exportación de reportes en PDF
-✔ Control de roles (Admin / Usuario)
+- React
+- Vite
+- TailwindCSS
+- Recharts
+- Axios
+- React Router
 
-No es solo un sistema.
-Es un panel de control financiero para turismo rural.
+### Backend
 
-🏗 Architecture Overview
+- Node.js
+- Express
+- PostgreSQL
+- JWT
+- Argon2
 
-Arquitectura desacoplada tipo SaaS moderna:
+### Database
 
+- PostgreSQL
+- Modelo relacional normalizado
+- Integridad referencial
+- Consultas agregadas para indicadores
+
+## Architecture
+
+```text
 Frontend (React SPA)
-⬇
-Backend (Node.js + Express API REST)
-⬇
-PostgreSQL (Relational Database)
-
-Diseñada para:
-
-Escalabilidad horizontal
-Seguridad por capas
-Integración futura con microservicios
-⚙ Tech Stack
-
-Frontend
-
-React + Vite
-TailwindCSS
-Recharts (visualización de datos)
-Context API (gestión de sesión)
-Axios (cliente HTTP)
-
-Backend
-
-Node.js
-Express
+        |
+        v
+Backend (Express REST API)
+        |
+        v
 PostgreSQL
-JWT Authentication
-bcrypt (hash de contraseñas)
+```
 
-Database
+Project structure:
 
-Modelo relacional normalizado
-Integridad referencial
-Consultas agregadas optimizadas
-🔐 Security Model
-Autenticación basada en JWT
-Hash seguro de contraseñas
-Middleware de validación de token
-Separación por roles (admin / usuario)
-Protección de rutas privadas
+```text
+.
+├── backend/
+│   ├── src/config/
+│   ├── src/controllers/
+│   ├── src/middleware/
+│   ├── src/models/
+│   ├── src/routes/
+│   └── server.js
+├── database/
+│   └── schema.sql
+├── frontend/
+│   └── src/
+└── README.md
+```
 
-Flujo seguro:
+## Local Setup
 
-Login → Token firmado → Header Authorization → Middleware valida → Acceso permitido
+### 1. Clone Repository
 
-📊 Business Intelligence Layer
-
-El sistema incorpora una capa de análisis operativo con indicadores clave:
-
-📈 Crecimiento mensual
-📊 Porcentaje de ocupación
-💰 Ingresos acumulados
-🏆 Top 5 fincas más rentables
-📅 Tendencia semanal
-📄 Exportación de estadísticas en PDF
-
-Toda la analítica se calcula desde consultas SQL agregadas para mayor eficiencia.
-
-💼 Core Functional Modules
-Property Management
-CRUD completo
-Configuración de precio por noche
-Asociación dinámica con reservas
-Reservation Engine
-Validación de fechas cruzadas
-Cálculo automático de noches
-Cálculo automático de ingresos
-Estados transaccionales:
-pendiente
-confirmada
-cancelada
-Guest Management
-Registro y seguimiento
-Asociación directa a reservas
-Financial Overview
-Dashboard dinámico
-Métricas estratégicas
-Reportes exportables
-🧩 Project Structure
-
-Backend
-
-backend/
-│
-├── config/
-├── controllers/
-├── middleware/
-├── models/
-├── routes/
-└── server.js
-
-Frontend
-
-frontend/
-│
-├── components/
-├── context/
-├── pages/
-├── routes/
-└── services/
-
-Arquitectura modular lista para escalar.
-
-🖥 Local Installation Guide
-1️⃣ Clone Repository
+```bash
 git clone https://github.com/LuisAIDev/Proyecto-Turistico-Rural-SENA.git
-2️⃣ Backend Setup
+cd Proyecto-Turistico-Rural-SENA
+```
+
+### 2. Database Setup
+
+Create the PostgreSQL database:
+
+```sql
+CREATE DATABASE sena_rural_hub;
+```
+
+Run the schema and demo seed:
+
+```bash
+psql -U postgres -d sena_rural_hub -f database/schema.sql
+```
+
+### 3. Backend Setup
+
+```bash
 cd backend
 npm install
+```
 
-Crear archivo .env:
+Create `backend/.env` from `backend/.env.example`:
 
-DB_HOST=
-DB_USER=
-DB_PASSWORD=
-DB_NAME=
-DB_PORT=
-JWT_SECRET=
+```env
+DB_HOST=localhost
+DB_USER=postgres
+DB_PASSWORD=your_password
+DB_NAME=sena_rural_hub
+DB_PORT=5432
+JWT_SECRET=replace_with_a_strong_secret
+FRONTEND_URL=http://localhost:5173
+```
 
-Ejecutar:
+Run the backend:
 
+```bash
 npm run dev
+```
 
-Servidor activo en:
-http://localhost:4000
+API:
 
-3️⃣ Frontend Setup
+```text
+http://localhost:4000/api
+```
+
+### 4. Frontend Setup
+
+```bash
 cd frontend
 npm install
+```
+
+Optional: create `frontend/.env` from `frontend/.env.example`:
+
+```env
+VITE_API_URL=http://localhost:4000/api
+```
+
+Run the frontend:
+
+```bash
 npm run dev
+```
 
-Aplicación activa en:
+App:
+
+```text
 http://localhost:5173
+```
 
-📈 Scalability Roadmap
+## Demo Credentials
 
-La arquitectura permite evolución hacia:
+The SQL seed creates an admin user:
 
-Docker containerization
-Despliegue en nube (AWS / Azure / Railway)
-Cache con Redis
-Separación en microservicios
-Integración con pasarela de pagos
-Multi-tenant SaaS
-🎯 Ideal Use Case
-Administradores de fincas rurales
-Cooperativas turísticas
-Operadores de turismo comunitario
-Proyectos académicos de gestión hotelera
-🧑‍💻 Author
+```text
+Email: admin@sena-rural.test
+Password: Admin123!
+Role: admin
+```
 
-Luis Orlando Guerra González
-Software Developer in Training
+## API Modules
+
+- `/api/usuarios`
+- `/api/fincas`
+- `/api/reservas`
+- `/api/huespedes`
+- `/api/servicios`
+
+See [backend/README.md](backend/README.md) for endpoint details.
+
+## Security Notes
+
+- `.env` files are ignored by Git.
+- Use `.env.example` files as templates.
+- Passwords are hashed with Argon2.
+- Protected routes use JWT authentication.
+- Admin actions are guarded by role middleware.
+
+## Roadmap
+
+- Add automated backend tests.
+- Add request validation middleware.
+- Add Docker Compose for PostgreSQL, backend and frontend.
+- Add production deployment guide.
+- Add CI/CD with GitHub Actions.
+- Add screenshots and live demo link.
+
+## Author
+
+Luis Orlando Guerra Gonzalez  
+Software Developer in Training  
 Cartagena, Colombia
