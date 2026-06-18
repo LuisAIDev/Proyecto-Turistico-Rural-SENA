@@ -13,13 +13,13 @@
 
 La aplicación permite centralizar en un solo sistema:
 
-- Administración de fincas y alojamientos  
-- Gestión de huéspedes  
-- Motor de reservas inteligente  
-- Servicios adicionales  
-- Facturación  
-- Indicadores financieros y operativos  
-- Solicitudes públicas de reserva  
+- Administración de fincas y alojamientos
+- Gestión de huéspedes
+- Motor de reservas inteligente
+- Servicios adicionales
+- Facturación
+- Indicadores financieros y operativos
+- Solicitudes públicas de reserva
 
 Este proyecto fue desarrollado como solución tecnológica orientada a la digitalización del sector turístico rural, buscando reemplazar procesos manuales por una plataforma moderna basada en datos.
 
@@ -28,12 +28,15 @@ Este proyecto fue desarrollado como solución tecnológica orientada a la digita
 # 🚀 Demo en Producción
 
 ### Frontend
+
 :contentReference[oaicite:0]{index=0}
 
 ### Backend API
+
 :contentReference[oaicite:1]{index=1}
 
 ### Catálogo Público
+
 :contentReference[oaicite:2]{index=2}
 
 > **Nota:** Las instancias gratuitas de Render pueden tardar unos segundos en activarse después de un tiempo de inactividad.
@@ -44,18 +47,18 @@ Este proyecto fue desarrollado como solución tecnológica orientada a la digita
 
 Muchos negocios de turismo rural aún gestionan reservas mediante:
 
-- WhatsApp  
-- Excel  
-- Llamadas telefónicas  
-- Procesos manuales  
+- WhatsApp
+- Excel
+- Llamadas telefónicas
+- Procesos manuales
 
 Esto suele generar problemas como:
 
-- Overbooking  
-- Pérdida de clientes  
-- Errores de facturación  
-- Mala trazabilidad  
-- Dificultad para medir rentabilidad  
+- Overbooking
+- Pérdida de clientes
+- Errores de facturación
+- Mala trazabilidad
+- Dificultad para medir rentabilidad
 
 **SENA Rural Hub** nace para resolver estos problemas digitalizando procesos críticos del negocio.
 
@@ -65,7 +68,7 @@ Objetivos del sistema:
 ✅ Automatizar reservas  
 ✅ Reducir errores humanos  
 ✅ Facilitar análisis financiero  
-✅ Escalar el negocio rural  
+✅ Escalar el negocio rural
 
 ---
 
@@ -75,10 +78,10 @@ La mayoría de pequeños operadores rurales no cuenta con herramientas de gesti�
 
 Esto afecta:
 
-- Toma de decisiones  
-- Control de ocupación  
-- Gestión de ingresos  
-- Experiencia del cliente  
+- Toma de decisiones
+- Control de ocupación
+- Gestión de ingresos
+- Experiencia del cliente
 
 Con esta plataforma, el negocio puede operar bajo un modelo **data-driven**, donde cada reserva y transacción genera información útil para crecer.
 
@@ -87,12 +90,14 @@ Con esta plataforma, el negocio puede operar bajo un modelo **data-driven**, don
 # ✨ Funcionalidades Principales
 
 ## Módulo Público
+
 - Landing page para clientes
 - Catálogo de alojamientos
 - Consulta de disponibilidad
 - Solicitud de reservas públicas
 
 ## Módulo Administrativo
+
 - Login seguro
 - Dashboard
 - Gestión de fincas
@@ -125,6 +130,7 @@ Con esta plataforma, el negocio puede operar bajo un modelo **data-driven**, don
 # 👥 Casos de Uso
 
 ## Cliente
+
 Puede:
 
 - Consultar alojamientos
@@ -132,6 +138,7 @@ Puede:
 - Solicitar reservas
 
 ## Administrador
+
 Puede:
 
 - Gestionar fincas
@@ -147,6 +154,7 @@ Puede:
 # 🛠 Stack Tecnológico
 
 ## Frontend
+
 - React
 - Vite
 - TailwindCSS
@@ -156,6 +164,7 @@ Puede:
 - Lucide React
 
 ## Backend
+
 - Node.js
 - Express
 - PostgreSQL
@@ -165,6 +174,7 @@ Puede:
 - CORS
 
 ## Infraestructura Cloud
+
 - Render (Frontend)
 - Render Web Service (Backend)
 - Neon PostgreSQL (Database Cloud)
@@ -189,15 +199,19 @@ PostgreSQL (Neon Cloud)
 Arquitectura basada en separación por capas:
 
 ### 1. Presentación
+
 Interfaz React para usuarios y administradores.
 
 ### 2. API REST
+
 Endpoints seguros con Express.
 
 ### 3. Lógica de Negocio
+
 Controladores y validaciones.
 
 ### 4. Persistencia
+
 PostgreSQL relacional.
 
 ---
@@ -386,6 +400,7 @@ DELETE /api/servicios/:id
 # 📊 Métricas del Proyecto
 
 ### Complejidad Técnica
+
 - Frontend SPA completo
 - Backend REST API
 - Persistencia cloud
@@ -393,13 +408,14 @@ DELETE /api/servicios/:id
 - Arquitectura modular
 
 ### Módulos construidos
+
 ✅ Login  
 ✅ Dashboard  
 ✅ Reservas  
 ✅ Fincas  
 ✅ Servicios  
 ✅ Huéspedes  
-✅ Facturación  
+✅ Facturación
 
 ---
 
@@ -421,6 +437,7 @@ Durante el desarrollo se resolvieron desafíos como:
 # 📈 Roadmap
 
 ## Versión 2.0
+
 - [ ] Exportar reportes PDF
 - [ ] Dashboard avanzado con analytics
 - [ ] Indicadores de ocupación
@@ -430,6 +447,7 @@ Durante el desarrollo se resolvieron desafíos como:
 - [ ] Integración con pagos online
 
 ## Versión 3.0
+
 - [ ] Multiempresa (Multi-tenant SaaS)
 - [ ] Suscripción mensual
 - [ ] App móvil
@@ -458,13 +476,13 @@ Más allá del código, este sistema me permitió practicar:
 
 Desarrollador Full-Stack en formación  
 Estudiante ADSO — SENA  
-Cartagena, Colombia  
+Cartagena, Colombia
 
 GitHub:  
-:contentReference[oaicite:3]{index=3}
+LuisAIDev
 
 LinkedIn:  
-*(Agregar enlace cuando esté publicado)*
+www.linkedin.com/in/luis-orlando-guerra-gonzalez-49aa30244
 
 ---
 
@@ -472,7 +490,7 @@ LinkedIn:
 
 🟢 En producción  
 🟢 Activo  
-🟢 En evolución continua  
+🟢 En evolución continua
 
 ---
 
@@ -482,10 +500,10 @@ Este proyecto fue construido como parte de mi crecimiento profesional en desarro
 
 Representa no solo conocimientos técnicos en:
 
-- React  
-- Node.js  
-- PostgreSQL  
-- Cloud Deployment  
+- React
+- Node.js
+- PostgreSQL
+- Cloud Deployment
 
 Sino también mi compromiso con construir soluciones tecnológicas reales que generen impacto.
 
