@@ -82,3 +82,44 @@ VALUES
   ('Restaurante', 'restaurant', 'REST', 0)
 ON CONFLICT (ref_code) DO NOTHING;
 
+INSERT INTO alojamientos (nombre, ubicacion, descripcion, capacidad, precio_noche, estado, usuario_id)
+SELECT 'Los Delfines', 'Turbaco', 'Finca rural con piscina, zonas verdes y espacios familiares.', 25, 1000000, 'disponible', NULL
+WHERE NOT EXISTS (
+  SELECT 1 FROM alojamientos
+  WHERE lower(nombre) = lower('Los Delfines') AND lower(ubicacion) = lower('Turbaco')
+);
+
+INSERT INTO alojamientos (nombre, ubicacion, descripcion, capacidad, precio_noche, estado, usuario_id)
+SELECT 'Los Cocos', 'Baru', 'Alojamiento cerca de la playa con ambiente tranquilo.', 25, 1000000, 'disponible', NULL
+WHERE NOT EXISTS (
+  SELECT 1 FROM alojamientos
+  WHERE lower(nombre) = lower('Los Cocos') AND lower(ubicacion) = lower('Baru')
+);
+
+INSERT INTO alojamientos (nombre, ubicacion, descripcion, capacidad, precio_noche, estado, usuario_id)
+SELECT 'Las Islas', 'Islas del Rosario', 'Experiencia isleña para grupos y descanso frente al mar.', 30, 1500000, 'disponible', NULL
+WHERE NOT EXISTS (
+  SELECT 1 FROM alojamientos
+  WHERE lower(nombre) = lower('Las Islas') AND lower(ubicacion) = lower('Islas del Rosario')
+);
+
+INSERT INTO alojamientos (nombre, ubicacion, descripcion, capacidad, precio_noche, estado, usuario_id)
+SELECT 'Cielo Mar', 'Baru', 'Casa campestre con vista costera y servicios para estadías completas.', 25, 1500000, 'disponible', NULL
+WHERE NOT EXISTS (
+  SELECT 1 FROM alojamientos
+  WHERE lower(nombre) = lower('Cielo Mar') AND lower(ubicacion) = lower('Baru')
+);
+
+INSERT INTO alojamientos (nombre, ubicacion, descripcion, capacidad, precio_noche, estado, usuario_id)
+SELECT 'Mar Caribe', 'Islas del Rosario', 'Alojamiento turístico para descanso, gastronomía y actividades náuticas.', 18, 1500000, 'disponible', NULL
+WHERE NOT EXISTS (
+  SELECT 1 FROM alojamientos
+  WHERE lower(nombre) = lower('Mar Caribe') AND lower(ubicacion) = lower('Islas del Rosario')
+);
+
+INSERT INTO alojamientos (nombre, ubicacion, descripcion, capacidad, precio_noche, estado, usuario_id)
+SELECT 'Los Calamares', 'Islas del Rosario', 'Playa privada y deportes náuticos para visitantes.', 15, 2000000, 'disponible', NULL
+WHERE NOT EXISTS (
+  SELECT 1 FROM alojamientos
+  WHERE lower(nombre) = lower('Los Calamares') AND lower(ubicacion) = lower('Islas del Rosario')
+);
