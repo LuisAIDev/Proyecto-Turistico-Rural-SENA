@@ -1,24 +1,34 @@
 # SENA Rural Hub
 
-Smart SaaS platform for rural hospitality management.
+Full-stack web platform for rural hospitality management. SENA Rural Hub helps rural lodging operators centralize property administration, guest records, reservations, additional services, billing indicators, and public booking requests in one application.
 
-SENA Rural Hub digitaliza la administracion de alojamientos rurales mediante gestion de fincas, reservas, huespedes, servicios adicionales, autenticacion por roles y dashboard con indicadores operativos.
+## Live Demo
+
+- Frontend: https://proyecto-turistico-rural-sena-1.onrender.com
+- Backend API: https://proyecto-turistico-rural-sena.onrender.com
+- Public catalog endpoint: https://proyecto-turistico-rural-sena.onrender.com/api/public/alojamientos
+
+> Render free instances can take a few seconds to wake up after inactivity.
 
 ## Product Vision
 
-Muchas fincas rurales gestionan reservas, disponibilidad e ingresos de forma manual o con herramientas separadas. Este proyecto centraliza la operacion en una plataforma web full-stack orientada a datos.
+Many rural lodging businesses manage availability, reservations, guests, and income with manual processes or disconnected tools. This project provides a data-driven web platform that supports both public customer interactions and internal administrative operations.
 
-## Core Features
+## Key Features
 
-- Autenticacion con JWT.
-- Control de roles para administradores.
-- CRUD de alojamientos rurales.
-- Gestion de huespedes.
-- Motor de reservas con validacion de fechas cruzadas.
-- Calculo automatico de noches e ingresos.
-- Catalogo de servicios adicionales.
-- Dashboard con metricas y visualizacion de datos.
-- Exportacion de reportes en PDF.
+- Public landing page for customers.
+- Public lodging catalog with availability status.
+- Public reservation request form.
+- JWT authentication for the administrative panel.
+- Role-based access control for administrators.
+- CRUD management for rural lodgings.
+- Guest management.
+- Reservation engine with date-overlap validation.
+- Automatic calculation of nights and total payment.
+- Additional services catalog.
+- Dashboard with operational and financial indicators.
+- Billing/reporting module.
+- PostgreSQL relational database with seed data.
 
 ## Tech Stack
 
@@ -27,9 +37,10 @@ Muchas fincas rurales gestionan reservas, disponibilidad e ingresos de forma man
 - React
 - Vite
 - TailwindCSS
-- Recharts
-- Axios
 - React Router
+- Axios
+- Recharts
+- Lucide React
 
 ### Backend
 
@@ -38,27 +49,31 @@ Muchas fincas rurales gestionan reservas, disponibilidad e ingresos de forma man
 - PostgreSQL
 - JWT
 - Argon2
+- Bcrypt compatibility for legacy password hashes
+- CORS
 
-### Database
+### Deployment
 
-- PostgreSQL
-- Modelo relacional normalizado
-- Integridad referencial
-- Consultas agregadas para indicadores
+- Render Static Site for the frontend
+- Render Web Service for the backend
+- Neon PostgreSQL for the production database
 
 ## Architecture
 
 ```text
+Customer / Admin
+       |
+       v
 Frontend (React SPA)
-        |
-        v
+       |
+       v
 Backend (Express REST API)
-        |
-        v
-PostgreSQL
+       |
+       v
+PostgreSQL (Neon or local)
 ```
 
-Project structure:
+## Project Structure
 
 ```text
 .
@@ -78,28 +93,26 @@ Project structure:
 
 ## Local Setup
 
-### 1. Clone Repository
+### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/LuisAIDev/Proyecto-Turistico-Rural-SENA.git
 cd Proyecto-Turistico-Rural-SENA
 ```
 
-### 2. Database Setup
-
-Create the PostgreSQL database:
+### 2. Create the Database
 
 ```sql
 CREATE DATABASE sena_rural_hub;
 ```
 
-Run the schema and demo seed:
+Run the schema and seed data:
 
 ```bash
 psql -U postgres -d sena_rural_hub -f database/schema.sql
 ```
 
-### 3. Backend Setup
+### 3. Configure and Run the Backend
 
 ```bash
 cd backend
@@ -114,6 +127,7 @@ DB_USER=postgres
 DB_PASSWORD=your_password
 DB_NAME=sena_rural_hub
 DB_PORT=5432
+DB_SSL=false
 JWT_SECRET=replace_with_a_strong_secret
 FRONTEND_URL=http://localhost:5173
 ```
@@ -124,13 +138,13 @@ Run the backend:
 npm run dev
 ```
 
-API:
+Local API:
 
 ```text
 http://localhost:4000/api
 ```
 
-### 4. Frontend Setup
+### 4. Configure and Run the Frontend
 
 ```bash
 cd frontend
@@ -149,15 +163,35 @@ Run the frontend:
 npm run dev
 ```
 
-App:
+Local app:
 
 ```text
 http://localhost:5173
 ```
 
+## Production Environment Variables
+
+### Backend
+
+When using Neon or another hosted PostgreSQL provider, the backend can use either `DATABASE_URL` or separate database variables.
+
+Recommended production configuration:
+
+```env
+DATABASE_URL=postgresql://user:password@host/database?sslmode=require
+JWT_SECRET=replace_with_a_strong_secret
+FRONTEND_URL=https://proyecto-turistico-rural-sena-1.onrender.com,http://localhost:5173
+```
+
+### Frontend
+
+```env
+VITE_API_URL=https://proyecto-turistico-rural-sena.onrender.com/api
+```
+
 ## Demo Credentials
 
-The SQL seed creates an admin user:
+The seed creates an administrator user:
 
 ```text
 Email: admin@sena-rural.test
@@ -165,32 +199,66 @@ Password: Admin123!
 Role: admin
 ```
 
-## API Modules
+## Main Routes
 
-- `/api/usuarios`
-- `/api/fincas`
-- `/api/reservas`
-- `/api/huespedes`
-- `/api/servicios`
+### Public Routes
 
-See [backend/README.md](backend/README.md) for endpoint details.
+```http
+GET  /api/public/alojamientos
+POST /api/public/reservas
+```
+
+### Administrative Routes
+
+```http
+POST   /api/usuarios/login
+GET    /api/usuarios
+POST   /api/usuarios
+PUT    /api/usuarios/:id
+DELETE /api/usuarios/:id
+
+GET    /api/fincas
+POST   /api/fincas
+PUT    /api/fincas/:id
+DELETE /api/fincas/:id
+
+GET    /api/reservas
+POST   /api/reservas
+PUT    /api/reservas/:id/:accion
+DELETE /api/reservas/:id
+
+GET    /api/huespedes
+POST   /api/huespedes
+PUT    /api/huespedes/:id
+DELETE /api/huespedes/:id
+
+GET    /api/servicios
+POST   /api/servicios
+DELETE /api/servicios/:id
+```
+
+See [backend/README.md](backend/README.md) for more backend details.
 
 ## Security Notes
 
 - `.env` files are ignored by Git.
 - Use `.env.example` files as templates.
-- Passwords are hashed with Argon2.
+- Passwords are stored with Argon2.
+- Legacy Bcrypt hashes are supported during login.
 - Protected routes use JWT authentication.
-- Admin actions are guarded by role middleware.
+- Administrative actions are guarded by role middleware.
+- Production CORS is configured through `FRONTEND_URL`.
 
 ## Roadmap
 
 - Add automated backend tests.
 - Add request validation middleware.
-- Add Docker Compose for PostgreSQL, backend and frontend.
-- Add production deployment guide.
+- Add image upload for lodging galleries.
+- Add online payment integration.
+- Add password recovery by email.
+- Add Docker Compose for local development.
 - Add CI/CD with GitHub Actions.
-- Add screenshots and live demo link.
+- Add screenshots and a complete production deployment guide.
 
 ## Author
 
