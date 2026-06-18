@@ -27,17 +27,16 @@ Este proyecto fue desarrollado como solución tecnológica orientada a la digita
 
 # 🚀 Demo en Producción
 
-### Frontend
+🌐 **Frontend (Aplicación Web):**  
+https://proyecto-turistico-rural-sena-1.onrender.com
 
-:contentReference[oaicite:0]{index=0}
+⚙️ **Backend API:**  
+https://proyecto-turistico-rural-sena.onrender.com
 
-### Backend API
 
-:contentReference[oaicite:1]{index=1}
+🏡 **Catálogo Público de Alojamientos:**  
+https://proyecto-turistico-rural-sena.onrender.com/api/public/alojamientos
 
-### Catálogo Público
-
-:contentReference[oaicite:2]{index=2}
 
 > **Nota:** Las instancias gratuitas de Render pueden tardar unos segundos en activarse después de un tiempo de inactividad.
 
