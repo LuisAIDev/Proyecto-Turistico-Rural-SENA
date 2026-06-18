@@ -5,20 +5,23 @@ dotenv.config();
 
 const { Pool } = pg;
 
-// 1. Configuración de la base de datos
+// 1. Configuración de la base de datos (con SSL activado para Neon)
 export const pool = new Pool({
   user: process.env.DB_USER,
   host: process.env.DB_HOST,
   database: process.env.DB_NAME,
   password: process.env.DB_PASSWORD,
   port: process.env.DB_PORT,
+  ssl: {
+    rejectUnauthorized: false, // Permite la conexión segura requerida por Neon
+  },
 });
 
 // 2. Verificación de conexión
 pool
   .connect()
   .then((client) => {
-    console.log('🔥 Conectado correctamente a PostgreSQL');
+    console.log('🔥 Conectado correctamente a PostgreSQL en la nube');
     client.release();
   })
   .catch((err) => {
