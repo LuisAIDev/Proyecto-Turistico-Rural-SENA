@@ -33,14 +33,32 @@ https://proyecto-turistico-rural-sena-1.onrender.com
 ⚙️ **Backend API:**  
 https://proyecto-turistico-rural-sena.onrender.com
 
-
 🏡 **Catálogo Público de Alojamientos:**  
 https://proyecto-turistico-rural-sena.onrender.com/api/public/alojamientos
-
 
 > **Nota:** Las instancias gratuitas de Render pueden tardar unos segundos en activarse después de un tiempo de inactividad.
 
 ---
+
+## 🖼️ Galería de SENA Rural Hub
+
+Aquí puedes visualizar el flujo de trabajo de la plataforma, desde la experiencia del usuario hasta el control administrativo.
+
+### Vista de Usuario
+
+|                                Pantalla Principal                                 |                           Formulario de Reserva                           |
+| :-------------------------------------------------------------------------------: | :-----------------------------------------------------------------------: |
+| !Vista Principal(screenshots/Captura%20de%20pantalla%202026-06-20%20120011_2.png) | ![Reserva]screenshots/Captura%20de%20pantalla%202026-06-18%20160115_2.png |
+
+### Panel Administrativo
+
+|                             Dashboard Principal                             |                               Inventario Rural                               |                            Gestión de Facturación                             |
+| :-------------------------------------------------------------------------: | :--------------------------------------------------------------------------: | :---------------------------------------------------------------------------: |
+| ![Dashboard]screenshots/Captura%20de%20pantalla%202026-06-20%20124051_3.png | ![Inventario]screenshots/Captura%20de%20pantalla%202026-06-20%20130830_3.png | ![Facturación]screenshots/Captura%20de%20pantalla%202026-06-20%20130848_3.png |
+
+---
+
+_Nota: Este sistema permite la gestión integral de alojamientos rurales, optimizando el control de reservas y el flujo de caja._
 
 # 🎯 Visión del Producto
 
@@ -535,6 +553,7 @@ Para más detalles legales, consulte el archivo:
 ```bash
 LICENSE
 ```
+
 !License https://img.shields.io/badge/License-Community%20v1.0-orange
 
 # ⭐ Nota Final
