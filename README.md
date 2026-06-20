@@ -493,6 +493,50 @@ www.linkedin.com/in/luis-orlando-guerra-gonzalez-49aa30244
 
 ---
 
+---
+
+# 📜 Licencia
+
+Este proyecto está protegido bajo la licencia personalizada:
+
+**SENA Rural Hub Community License v1.0**
+
+## Uso permitido
+
+Se permite usar este software gratuitamente para:
+
+- Aprendizaje y formación académica
+- Investigación tecnológica
+- Proyectos sociales
+- Emprendimientos rurales pequeños
+- Hoteles, fincas y alojamientos de pequeña escala
+- Organizaciones sin ánimo de lucro
+
+## Restricciones
+
+NO está permitido sin autorización expresa del autor:
+
+- Revender este software
+- Comercializar copias
+- Ofrecerlo como SaaS pago
+- Reempaquetarlo como producto propietario
+- Eliminar créditos del autor original
+
+## Filosofía de la Licencia
+
+Este proyecto fue creado con una visión social:
+
+Democratizar el acceso a tecnología para pequeños negocios rurales que normalmente no pueden costear software empresarial.
+
+El objetivo es que la tecnología sirva para ayudar, educar y generar impacto positivo.
+
+Para más detalles legales, consulte el archivo:
+
+```bash
+LICENSE
+```
+!License https://img.shields.io/badge/License-Community%20v1.0-orange
+
 # ⭐ Nota Final
 
 Este proyecto fue construido como parte de mi crecimiento profesional en desarrollo de software.
