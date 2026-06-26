@@ -57,24 +57,24 @@ const reservasController = {
       }
 
       /* ============================
-         VALIDAR DISPONIBILIDAD
-         No permite fechas cruzadas
-      ============================ */
-      const existeReserva = await pool.query(`
-        SELECT 1 FROM reservas
-        WHERE alojamiento_id = $1
-        AND estado != 'cancelada'
-        AND (
-          fecha_entrada < $3
-          AND fecha_salida > $2
-        )
-      `, [alojamiento_id, fecha_entrada, fecha_salida]);
+          VALIDAR DISPONIBILIDAD
+          No permite fechas cruzadas
+       ============================ */
+       const existeReserva = await pool.query(`
+         SELECT 1 FROM reservas
+         WHERE alojamiento_id = $1
+         AND estado != 'cancelada'
+         AND (
+           (fecha_entrada < $3 AND fecha_salida > $2)
+           OR (fecha_entrada <= $3 AND fecha_salida >= $2)
+         )
+       `, [alojamiento_id, fecha_entrada, fecha_salida]);
 
-      if (existeReserva.rowCount > 0) {
-        return res.status(400).json({
-          error: 'El alojamiento ya está reservado en ese rango de fechas'
-        });
-      }
+       if (existeReserva.rowCount > 0) {
+         return res.status(400).json({
+           error: 'El alojamiento ya está reservado en ese rango de fechas'
+         });
+       }
 
       /* ============================
          OBTENER PRECIO
