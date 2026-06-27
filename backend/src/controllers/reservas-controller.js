@@ -270,7 +270,93 @@ const reservasController = {
 
 
   /* =====================================================
-     6. KPI RENTABILIDAD - ALOJAMIENTO ESTRELLA
+     6. FACTURACIÓN - DATOS PARA EL MÓDULO DE CAJA
+  ===================================================== */
+  getFacturacion: async (req, res) => {
+    try {
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS pagos_manuales (
+          id SERIAL PRIMARY KEY,
+          cliente VARCHAR(200) NOT NULL,
+          alojamiento_id INTEGER REFERENCES alojamientos(id) ON DELETE SET NULL,
+          alojamiento_nombre VARCHAR(200),
+          monto NUMERIC(12,2) NOT NULL CHECK (monto > 0),
+          estado VARCHAR(30) NOT NULL DEFAULT 'pendiente'
+            CHECK (estado IN ('pendiente','completado','cancelado')),
+          descripcion TEXT,
+          usuario_id INTEGER REFERENCES usuarios(id) ON DELETE SET NULL,
+          created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+        )
+      `);
+
+      const [reservasRes, pagosRes] = await Promise.all([
+        pool.query(`
+          SELECT
+            r.id, r.fecha_entrada, r.fecha_salida, r.estado, r.total_pago,
+            r.noches, r.created_at,
+            h.nombre AS huesped_nombre,
+            a.nombre AS finca_nombre
+          FROM reservas r
+          LEFT JOIN huespedes h ON r.huesped_id = h.id
+          LEFT JOIN alojamientos a ON r.alojamiento_id = a.id
+        `),
+        pool.query(`SELECT * FROM pagos_manuales`),
+      ]);
+
+      const desdeReservas = reservasRes.rows.map((r) => ({
+        id: `res-${r.id}`,
+        fecha: r.fecha_entrada,
+        cliente: r.huesped_nombre || 'Cliente General',
+        finca: r.finca_nombre,
+        monto: parseFloat(r.total_pago || 0),
+        estado: r.estado?.toLowerCase() === 'confirmada' ? 'completado' : r.estado?.toLowerCase() === 'cancelada' ? 'cancelado' : 'pendiente',
+        metodo: 'Transferencia',
+        tipo: 'reserva',
+        created_at: r.created_at,
+      }));
+
+      const desdePagos = pagosRes.rows.map((p) => ({
+        id: `pag-${p.id}`,
+        fecha: p.created_at ? p.created_at.toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+        cliente: p.cliente,
+        finca: p.alojamiento_nombre || 'Pago Directo',
+        monto: parseFloat(p.monto || 0),
+        estado: p.estado,
+        metodo: 'Efectivo',
+        tipo: 'manual',
+        created_at: p.created_at,
+      }));
+
+      const transacciones = [...desdeReservas, ...desdePagos]
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+      const totalRecaudado = transacciones
+        .filter((t) => t.estado === 'completado')
+        .reduce((acc, curr) => acc + curr.monto, 0);
+
+      const pendientes = transacciones.filter((t) => t.estado === 'pendiente').length;
+      const ahora = new Date();
+      const transaccionesMes = transacciones.filter((t) => {
+        const fecha = new Date(t.fecha);
+        return fecha.getMonth() === ahora.getMonth() && fecha.getFullYear() === ahora.getFullYear();
+      }).length;
+
+      res.json({
+        transacciones,
+        resumen: {
+          totalRecaudado,
+          pagosPendientes: pendientes,
+          transaccionesMes,
+        },
+      });
+    } catch (error) {
+      console.error('Error al obtener facturación:', error.message);
+      res.status(500).json({ error: 'Error al obtener datos de facturación' });
+    }
+  },
+
+  /* =====================================================
+     7. KPI RENTABILIDAD - ALOJAMIENTO ESTRELLA
   ===================================================== */
   getKpiRentabilidad: async (req, res) => {
     try {
