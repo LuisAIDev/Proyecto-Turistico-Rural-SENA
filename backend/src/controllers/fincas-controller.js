@@ -198,7 +198,7 @@ const fincasController = {
 
     try {
       const result = await pool.query(
-        `UPDATE alojamientos SET imagenes = array_append(imagenes, $1) WHERE id = $2 RETURNING *`,
+        `UPDATE alojamientos SET imagenes = COALESCE(array_append(imagenes, $1), ARRAY[$1]) WHERE id = $2 RETURNING *`,
         [url.trim(), id],
       );
 

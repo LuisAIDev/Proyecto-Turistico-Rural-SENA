@@ -187,12 +187,19 @@ const Fincas = () => {
 
   const handleAgregarImagenGaleria = async (e) => {
     e.preventDefault();
-    if (!nuevaUrlGaleria.trim()) return;
+    const url = nuevaUrlGaleria.trim();
+    if (!url) return;
     setAgregandoImg(true);
     try {
-      await api.put(`/fincas/${galeriaFinca.id}/imagenes`, { url: nuevaUrlGaleria.trim() });
+      const res = await api.put(`/fincas/${galeriaFinca.id}/imagenes`, { url });
+      const actualizada = res.data?.data;
+      if (actualizada) {
+        setGaleriaFinca(actualizada);
+        setFincas((prev) => prev.map((f) => (f.id === actualizada.id ? actualizada : f)));
+      } else {
+        await refrescarGaleria();
+      }
       setNuevaUrlGaleria('');
-      await refrescarGaleria();
     } catch (err) {
       alert(err.response?.data?.error || 'Error al agregar imagen');
     } finally {
@@ -591,9 +598,9 @@ const Fincas = () => {
                   className="flex-1 p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none font-bold focus:ring-2 focus:ring-[#0A4D27]"
                 />
                 <button
-                  type="submit"
-                  disabled={agregandoImg || !nuevaUrlGaleria.trim()}
-                  className="bg-[#0A4D27] hover:bg-[#083e1f] text-white font-bold px-5 py-3 rounded-xl text-xs uppercase tracking-wider transition-colors disabled:opacity-50 flex items-center gap-1.5"
+                  type="button"
+                  onClick={handleAgregarImagenGaleria}
+                  className="bg-[#0A4D27] hover:bg-[#083e1f] text-white font-bold px-5 py-3 rounded-xl text-xs uppercase tracking-wider transition-colors flex items-center gap-1.5"
                 >
                   <Plus size={16} />
                   {agregandoImg ? '...' : 'Agregar Imagen'}
