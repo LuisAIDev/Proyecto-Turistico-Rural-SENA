@@ -48,6 +48,8 @@ const fincasController = {
 
     try {
       await pool.query('BEGIN');
+      await pool.query('ALTER TABLE alojamientos ADD COLUMN IF NOT EXISTS imagenes TEXT[] DEFAULT $1', [['https://placehold.co/800x600/0A4D27/FFFFFF?text=SENA+RURAL']]);
+
       const queryFinca = `
         INSERT INTO alojamientos (nombre, ubicacion, descripcion, capacidad, precio_noche, estado, usuario_id, imagenes) 
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *
@@ -163,6 +165,70 @@ const fincasController = {
           success: false,
           error: 'No se puede eliminar la finca si tiene reservas activas.',
         });
+    }
+  },
+
+  /* =====================================================
+     5. AGREGAR IMAGEN A UNA FINCA
+  ===================================================== */
+  addImage: async (req, res) => {
+    const { id } = req.params;
+    const { url } = req.body;
+
+    if (!url || typeof url !== 'string' || url.trim().length === 0) {
+      return res.status(400).json({ success: false, error: 'La URL de la imagen es obligatoria' });
+    }
+
+    try {
+      const result = await pool.query(
+        `UPDATE alojamientos SET imagenes = array_append(imagenes, $1) WHERE id = $2 RETURNING *`,
+        [url.trim(), id],
+      );
+
+      if (result.rowCount === 0) {
+        return res.status(404).json({ success: false, error: 'La finca no existe' });
+      }
+
+      res.json({ success: true, data: result.rows[0] });
+    } catch (error) {
+      console.error('Error al agregar imagen:', error.message);
+      res.status(500).json({ success: false, error: 'Error al agregar la imagen' });
+    }
+  },
+
+  /* =====================================================
+     6. ELIMINAR IMAGEN DE UNA FINCA POR ÍNDICE
+  ===================================================== */
+  removeImage: async (req, res) => {
+    const { id, index } = req.params;
+    const idx = parseInt(index, 10);
+
+    if (isNaN(idx) || idx < 0) {
+      return res.status(400).json({ success: false, error: 'Índice de imagen inválido' });
+    }
+
+    try {
+      const finca = await pool.query('SELECT imagenes FROM alojamientos WHERE id = $1', [id]);
+      if (finca.rowCount === 0) {
+        return res.status(404).json({ success: false, error: 'La finca no existe' });
+      }
+
+      const imagenes = finca.rows[0].imagenes || [];
+      if (idx >= imagenes.length) {
+        return res.status(400).json({ success: false, error: 'Índice de imagen fuera de rango' });
+      }
+
+      const nuevasImagenes = imagenes.filter((_, i) => i !== idx);
+
+      const result = await pool.query(
+        'UPDATE alojamientos SET imagenes = $1 WHERE id = $2 RETURNING *',
+        [nuevasImagenes, id],
+      );
+
+      res.json({ success: true, data: result.rows[0] });
+    } catch (error) {
+      console.error('Error al eliminar imagen:', error.message);
+      res.status(500).json({ success: false, error: 'Error al eliminar la imagen' });
     }
   },
 };

@@ -7,7 +7,8 @@ import {
   LogOut,
   BadgeDollarSign,
   TrendingUp,
-  ConciergeBell, // Icono ideal para el Catálogo de Servicios
+  ConciergeBell,
+  Camera,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -46,6 +47,11 @@ function Navbar() {
       name: 'Facturación',
       path: '/facturacion',
       icon: <BadgeDollarSign size={20} />,
+    },
+    {
+      name: 'Imágenes',
+      path: '/imagenes',
+      icon: <Camera size={20} />,
     },
   ];
 

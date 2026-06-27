@@ -6,7 +6,8 @@ import Reservas from '../pages/Reservas';
 import Facturacion from '../pages/Facturacion';
 import Servicios from '../pages/Servicios'; 
 import Huespedes from '../components/Huespedes';
-import Fincas from '../pages/Fincas'; // <--- NUEVA IMPORTACIÓN PARA EL MÓDULO DE FINCAS
+import Fincas from '../pages/Fincas';
+import Imagenes from '../pages/Imagenes';
 import PrivateRoutes from './PrivateRoutes';
 
 function AppRouter() {
@@ -61,6 +62,12 @@ function AppRouter() {
           <Route
             path="/servicios"
             element={<Servicios />}
+          />
+
+          {/* Gestión de Imágenes / Multimedia */}
+          <Route
+            path="/imagenes"
+            element={<Imagenes />}
           />
         </Route>
 

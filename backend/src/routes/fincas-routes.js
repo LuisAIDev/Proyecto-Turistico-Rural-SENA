@@ -49,4 +49,20 @@ router.delete(
   fincasController.delete,
 );
 
+// 5. Agregar imagen a una finca
+router.put(
+  '/:id/imagenes',
+  verificarToken,
+  verificarRol(['admin']),
+  fincasController.addImage,
+);
+
+// 6. Eliminar imagen de una finca por índice
+router.delete(
+  '/:id/imagenes/:index',
+  verificarToken,
+  verificarRol(['admin']),
+  fincasController.removeImage,
+);
+
 export default router;
