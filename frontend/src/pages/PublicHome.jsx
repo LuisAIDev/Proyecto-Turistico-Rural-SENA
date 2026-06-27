@@ -12,6 +12,10 @@ import {
   Flame,
   Bath,
   Utensils,
+  Image as ImageIcon,
+  X,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import api from '../services/api';
 import heroImage from '../assets/hero.png';
@@ -41,6 +45,8 @@ function PublicHome() {
   const [estado, setEstado] = useState({ tipo: '', mensaje: '' });
   const [cargando, setCargando] = useState(true);
   const [enviando, setEnviando] = useState(false);
+  const [galeriaAlojamiento, setGaleriaAlojamiento] = useState(null);
+  const [galeriaIndice, setGaleriaIndice] = useState(0);
 
   useEffect(() => {
     const cargarAlojamientos = async () => {
@@ -51,7 +57,7 @@ function PublicHome() {
         if (lista.length > 0) {
           setForm((prev) => ({ ...prev, alojamiento_id: String(lista[0].id) }));
         }
-      } catch (error) {
+      } catch {
         setEstado({
           tipo: 'error',
           mensaje: 'No pudimos cargar los alojamientos disponibles.',
@@ -116,6 +122,13 @@ function PublicHome() {
     } finally {
       setEnviando(false);
     }
+  };
+
+  const PLACEHOLDER_IMG = 'https://placehold.co/800x600/0A4D27/FFFFFF?text=SENA+RURAL';
+
+  const abrirGaleria = (alojamiento, indice = 0) => {
+    setGaleriaAlojamiento(alojamiento);
+    setGaleriaIndice(indice);
   };
 
   return (
@@ -202,7 +215,25 @@ function PublicHome() {
               {alojamientos.map((alojamiento) => (
                 <article
                   key={alojamiento.id}
-                  className="rounded-md border border-green-100 bg-white p-5 shadow-sm">
+                  className="rounded-md border border-green-100 bg-white shadow-sm">
+                  <div className="relative aspect-[16/9] overflow-hidden rounded-t-md bg-slate-100">
+                    <img
+                      src={alojamiento.imagenes?.[0] || PLACEHOLDER_IMG}
+                      alt={alojamiento.nombre}
+                      className="h-full w-full object-cover"
+                      onError={(e) => { e.target.src = PLACEHOLDER_IMG; }}
+                    />
+                    {(alojamiento.imagenes?.length || 0) > 1 && (
+                      <button
+                        onClick={(e) => { e.preventDefault(); abrirGaleria(alojamiento, 0); }}
+                        className="absolute bottom-2 right-2 flex items-center gap-1 rounded-md bg-black/60 px-2 py-1 text-[10px] font-bold text-white backdrop-blur-sm hover:bg-black/80 transition-colors"
+                      >
+                        <ImageIcon size={12} />
+                        Ver Fotos
+                      </button>
+                    )}
+                  </div>
+                  <div className="p-5">
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <h3 className="text-xl font-black text-slate-900">
@@ -250,6 +281,7 @@ function PublicHome() {
                         Servicios por confirmar
                       </span>
                     )}
+                  </div>
                   </div>
                 </article>
               ))}
@@ -352,6 +384,61 @@ function PublicHome() {
           </div>
         </section>
       </main>
+
+      {/* MODAL GALERÍA PÚBLICA */}
+      {galeriaAlojamiento && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="relative w-full max-w-3xl rounded-xl bg-white shadow-2xl overflow-hidden">
+            <div className="flex items-center justify-between bg-gray-50 px-5 py-3 border-b border-gray-200">
+              <h3 className="font-black text-gray-800 text-sm uppercase tracking-wider">
+                {galeriaAlojamiento.nombre}
+              </h3>
+              <button
+                onClick={() => setGaleriaAlojamiento(null)}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X size={22} />
+              </button>
+            </div>
+            <div className="relative flex items-center justify-center bg-gray-900" style={{ minHeight: '380px' }}>
+              {(galeriaAlojamiento.imagenes || []).length > 0 ? (
+                <>
+                  <img
+                    src={galeriaAlojamiento.imagenes[galeriaIndice] || PLACEHOLDER_IMG}
+                    alt={`Foto ${galeriaIndice + 1}`}
+                    className="max-h-[55vh] max-w-full object-contain p-4"
+                    onError={(e) => { e.target.src = PLACEHOLDER_IMG; }}
+                  />
+                  {(galeriaAlojamiento.imagenes || []).length > 1 && (
+                    <>
+                      <button
+                        onClick={() => setGaleriaIndice((prev) => (prev - 1 + galeriaAlojamiento.imagenes.length) % galeriaAlojamiento.imagenes.length)}
+                        className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-white/80 p-2 shadow-lg hover:bg-white transition-all"
+                      >
+                        <ChevronLeft size={22} className="text-gray-800" />
+                      </button>
+                      <button
+                        onClick={() => setGaleriaIndice((prev) => (prev + 1) % galeriaAlojamiento.imagenes.length)}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-white/80 p-2 shadow-lg hover:bg-white transition-all"
+                      >
+                        <ChevronRight size={22} className="text-gray-800" />
+                      </button>
+                    </>
+                  )}
+                  <span className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-black/50 px-3 py-1 text-xs font-bold text-white">
+                    {galeriaIndice + 1} / {galeriaAlojamiento.imagenes.length}
+                  </span>
+                </>
+              ) : (
+                <div className="text-center text-white py-10">
+                  <ImageIcon size={48} className="mx-auto mb-3 opacity-40" />
+                  <p className="font-bold">Sin imágenes disponibles</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
