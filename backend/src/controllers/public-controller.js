@@ -15,6 +15,7 @@ const publicController = {
           a.capacidad,
           a.precio_noche,
           a.estado,
+          a.imagenes,
           COALESCE(json_agg(s.*) FILTER (WHERE s.id IS NOT NULL), '[]') AS servicios
         FROM alojamientos a
         LEFT JOIN alojamiento_servicios aser ON a.id = aser.alojamiento_id

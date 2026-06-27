@@ -223,15 +223,6 @@ function PublicHome() {
                       className="h-full w-full object-cover"
                       onError={(e) => { e.target.src = PLACEHOLDER_IMG; }}
                     />
-                    {(alojamiento.imagenes?.length || 0) > 1 && (
-                      <button
-                        onClick={(e) => { e.preventDefault(); abrirGaleria(alojamiento, 0); }}
-                        className="absolute bottom-2 right-2 flex items-center gap-1 rounded-md bg-black/60 px-2 py-1 text-[10px] font-bold text-white backdrop-blur-sm hover:bg-black/80 transition-colors"
-                      >
-                        <ImageIcon size={12} />
-                        Ver Fotos
-                      </button>
-                    )}
                   </div>
                   <div className="p-5">
                   <div className="flex items-start justify-between gap-4">
@@ -282,6 +273,14 @@ function PublicHome() {
                       </span>
                     )}
                   </div>
+
+                  <button
+                    onClick={() => abrirGaleria(alojamiento, 0)}
+                    className="mt-4 w-full rounded-lg border-2 border-dashed border-green-300 bg-green-50/50 px-4 py-3 text-sm font-black uppercase tracking-wider text-green-800 transition-all hover:border-green-500 hover:bg-green-100 hover:text-green-900 flex items-center justify-center gap-2"
+                  >
+                    <ImageIcon size={18} />
+                    Ver Galería
+                  </button>
                   </div>
                 </article>
               ))}
