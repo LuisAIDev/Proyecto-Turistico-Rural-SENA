@@ -18,6 +18,8 @@ const Fincas = () => {
   const [cargando, setCargando] = useState(true);
   const [galeriaFinca, setGaleriaFinca] = useState(null);
   const [galeriaIndice, setGaleriaIndice] = useState(0);
+  const [nuevaUrlGaleria, setNuevaUrlGaleria] = useState('');
+  const [agregandoImg, setAgregandoImg] = useState(false);
 
   const [nuevaFinca, setNuevaFinca] = useState({
     nombre: '',
@@ -141,6 +143,50 @@ const Fincas = () => {
       } else {
         alert(`No se pudo eliminar: ${mensaje}`);
       }
+    }
+  };
+
+  const refrescarGaleria = async () => {
+    if (!galeriaFinca) return;
+    try {
+      const res = await api.get('/fincas');
+      const lista = res.data?.data || (Array.isArray(res.data) ? res.data : []);
+      const actualizada = lista.find((f) => f.id === galeriaFinca.id);
+      if (actualizada) {
+        setGaleriaFinca(actualizada);
+        setFincas((prev) => prev.map((f) => (f.id === actualizada.id ? actualizada : f)));
+      }
+    } catch (e) {
+      console.warn('Error al refrescar galería:', e);
+    }
+  };
+
+  const handleAgregarImagenGaleria = async (e) => {
+    e.preventDefault();
+    if (!nuevaUrlGaleria.trim()) return;
+    setAgregandoImg(true);
+    try {
+      await api.put(`/fincas/${galeriaFinca.id}/imagenes`, { url: nuevaUrlGaleria.trim() });
+      setNuevaUrlGaleria('');
+      await refrescarGaleria();
+    } catch (err) {
+      alert(err.response?.data?.error || 'Error al agregar imagen');
+    } finally {
+      setAgregandoImg(false);
+    }
+  };
+
+  const handleEliminarImagenGaleria = async (index) => {
+    if (!window.confirm('¿Eliminar esta imagen?')) return;
+    try {
+      await api.delete(`/fincas/${galeriaFinca.id}/imagenes/${index}`);
+      const nuevoTotal = (galeriaFinca.imagenes || []).length - 1;
+      if (galeriaIndice >= nuevoTotal && nuevoTotal > 0) {
+        setGaleriaIndice(nuevoTotal - 1);
+      }
+      await refrescarGaleria();
+    } catch (err) {
+      alert(err.response?.data?.error || 'Error al eliminar imagen');
     }
   };
 
@@ -466,26 +512,62 @@ const Fincas = () => {
                 </div>
               )}
             </div>
-            {(galeriaFinca.imagenes || []).length > 1 && (
-              <div className="flex gap-2 p-4 overflow-x-auto bg-gray-50 border-t border-gray-100">
-                {galeriaFinca.imagenes.map((url, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setGaleriaIndice(i)}
-                    className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${
-                      i === galeriaIndice ? 'border-[#0A4D27] ring-2 ring-[#0A4D27]/30' : 'border-gray-200 opacity-60 hover:opacity-100'
-                    }`}
-                  >
-                    <img
-                      src={previewImagen(url)}
-                      alt={`Miniatura ${i + 1}`}
-                      className="w-full h-full object-cover"
-                      onError={(e) => { e.target.src = 'https://placehold.co/800x600/0A4D27/FFFFFF?text=SENA+RURAL'; }}
-                    />
-                  </button>
-                ))}
-              </div>
-            )}
+            <div className="flex gap-2 p-4 overflow-x-auto bg-gray-50 border-t border-gray-100">
+              {(galeriaFinca.imagenes || []).length > 0 ? (
+                galeriaFinca.imagenes.map((url, i) => (
+                  <div key={i} className="relative flex-shrink-0 group">
+                    <button
+                      onClick={() => setGaleriaIndice(i)}
+                      className={`w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${
+                        i === galeriaIndice ? 'border-[#0A4D27] ring-2 ring-[#0A4D27]/30' : 'border-gray-200 opacity-60 hover:opacity-100'
+                      }`}
+                    >
+                      <img
+                        src={previewImagen(url)}
+                        alt={`Miniatura ${i + 1}`}
+                        className="w-full h-full object-cover"
+                        onError={(e) => { e.target.src = 'https://placehold.co/800x600/0A4D27/FFFFFF?text=SENA+RURAL'; }}
+                      />
+                    </button>
+                    <button
+                      onClick={() => handleEliminarImagenGaleria(i)}
+                      className="absolute -top-1.5 -right-1.5 w-6 h-6 flex items-center justify-center bg-red-600 text-white rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-700"
+                      title="Eliminar imagen"
+                    >
+                      <Trash2 size={12} />
+                    </button>
+                  </div>
+                ))
+              ) : (
+                <div className="text-gray-400 text-xs font-bold py-2">
+                  Sin imágenes
+                </div>
+              )}
+            </div>
+
+            {/* ADMINISTRAR IMÁGENES */}
+            <div className="border-t border-gray-100 p-4 bg-white">
+              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">
+                Administrar Imágenes de este Alojamiento
+              </p>
+              <form onSubmit={handleAgregarImagenGaleria} className="flex gap-3">
+                <input
+                  type="url"
+                  value={nuevaUrlGaleria}
+                  onChange={(e) => setNuevaUrlGaleria(e.target.value)}
+                  placeholder="Pegar URL de la nueva imagen aquí..."
+                  className="flex-1 p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none font-bold focus:ring-2 focus:ring-[#0A4D27]"
+                />
+                <button
+                  type="submit"
+                  disabled={agregandoImg || !nuevaUrlGaleria.trim()}
+                  className="bg-[#0A4D27] hover:bg-[#083e1f] text-white font-bold px-5 py-3 rounded-xl text-xs uppercase tracking-wider transition-colors disabled:opacity-50 flex items-center gap-1.5"
+                >
+                  <Plus size={16} />
+                  {agregandoImg ? '...' : 'Agregar Imagen'}
+                </button>
+              </form>
+            </div>
           </div>
         </div>
       )}
