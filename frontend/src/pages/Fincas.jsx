@@ -201,7 +201,10 @@ const Fincas = () => {
       }
       setNuevaUrlGaleria('');
     } catch (err) {
-      alert(err.response?.data?.error || 'Error al agregar imagen');
+      const status = err.response?.status || 'sin respuesta';
+      const msg = err.response?.data?.error || err.message || 'Error al agregar imagen';
+      console.error(`[Fincas] Error al agregar imagen (HTTP ${status}):`, msg, err);
+      alert(`Error (${status}): ${msg}`);
     } finally {
       setAgregandoImg(false);
     }
