@@ -81,7 +81,8 @@ function Dashboard() {
       setFincas(resFincas.data.data || resFincas.data);
       setTodosLosServicios(resServicios.data.data || resServicios.data);
 
-      const reservas = resReservas.data.data || resReservas.data;
+      const reservas = resReservas.data?.data || (Array.isArray(resReservas.data) ? resReservas.data : []);
+      const totalReservas = resReservas.data?.paginacion?.total ?? reservas.length;
       let ingresosAcumulados = 0;
       const resumenPorDia = {};
 
@@ -105,7 +106,7 @@ function Dashboard() {
 
       setStats({
         totalIngresos: ingresosAcumulados,
-        totalReservas: reservas.length,
+        totalReservas,
         datosGrafica,
       });
     } catch (error) {

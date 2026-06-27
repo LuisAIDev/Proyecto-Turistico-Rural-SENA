@@ -1,10 +1,7 @@
 import pool from '../config/db.js';
+import { differenceInCalendarDays, isFuture, parseISO } from 'date-fns';
 
-const calcularNoches = (fechaEntrada, fechaSalida) => {
-  const inicio = new Date(fechaEntrada);
-  const fin = new Date(fechaSalida);
-  return Math.ceil((fin - inicio) / (1000 * 60 * 60 * 24));
-};
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const publicController = {
   getAlojamientos: async (req, res) => {
@@ -58,12 +55,36 @@ const publicController = {
       });
     }
 
-    const noches = calcularNoches(fecha_entrada, fecha_salida);
+    if (email && !emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        error: 'El formato del correo electrónico no es válido.',
+      });
+    }
 
-    if (Number.isNaN(noches) || noches <= 0) {
+    const fechaInicio = parseISO(fecha_entrada);
+    const fechaFin = parseISO(fecha_salida);
+
+    if (fechaFin <= fechaInicio) {
       return res.status(400).json({
         success: false,
         error: 'La fecha de salida debe ser mayor que la fecha de entrada.',
+      });
+    }
+
+    if (!isFuture(fechaInicio)) {
+      return res.status(400).json({
+        success: false,
+        error: 'La fecha de entrada debe ser a partir de mañana.',
+      });
+    }
+
+    const noches = differenceInCalendarDays(fechaFin, fechaInicio);
+
+    if (noches <= 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'La estadía debe ser de al menos 1 noche.',
       });
     }
 
@@ -105,7 +126,7 @@ const publicController = {
 
       let huesped;
 
-      if (documento) {
+      if (documento && documento.trim() !== '') {
         const existente = await pool.query(
           'SELECT id FROM huespedes WHERE documento = $1',
           [documento],
@@ -134,7 +155,7 @@ const publicController = {
       }
 
       const precio = Number(alojamiento.rows[0].precio_noche);
-      const total = precio * noches;
+      const total = Math.round(precio * noches * 100) / 100;
 
       const reserva = await pool.query(
         `INSERT INTO reservas

@@ -19,14 +19,12 @@ router.get('/', verificarToken, reservasController.getAll);
 router.post('/', verificarToken, reservasController.create);
 
 // 3. Eliminar reserva
-// Si aún no tienes el método 'delete' en el controlador, el fallback evitará que el servidor se caiga
-router.delete('/:id', verificarToken, reservasController.delete || ((req, res) => {
-    res.status(404).json({ error: "El método para eliminar aún no ha sido implementado" });
-}));
+router.delete('/:id', verificarToken, reservasController.delete);
 
 // 4. Actualizar estado (confirmar o cancelar)
-router.put('/:id/:accion', verificarToken, reservasController.updateStatus || ((req, res) => {
-    res.json({ message: "Ruta de actualización preparada para el siguiente paso" });
-}));
+router.put('/:id/:accion', verificarToken, reservasController.updateStatus);
+
+// 5. KPI rentabilidad (alojamiento con más ingresos)
+router.get('/kpi/rentabilidad', verificarToken, reservasController.getKpiRentabilidad);
 
 export default router;

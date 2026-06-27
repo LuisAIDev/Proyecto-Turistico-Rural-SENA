@@ -46,7 +46,6 @@ function Reservas() {
     fecha_salida: '',
   });
 
-  // 🟢 FUNCIÓN CORREGIDA PARA MANEJAR RESPUESTAS ESTANDARIZADAS
   const cargarDatos = async () => {
     setLoading(true);
     try {
@@ -56,14 +55,6 @@ function Reservas() {
         api.get('/huespedes'),
       ]);
 
-      // Log para verificar la estructura en consola
-      console.log("Respuesta Backend Fincas:", rFin.data);
-
-      /**
-       * CORRECCIÓN CLAVE:
-       * Tu controlador envía { success: true, data: [...] }. 
-       * Accedemos a .data.data para obtener el array real de filas.
-       */
       const listaReservas = rRes.data?.data || (Array.isArray(rRes.data) ? rRes.data : []);
       const listaFincas = rFin.data?.data || (Array.isArray(rFin.data) ? rFin.data : []);
       const listaHuespedes = rHue.data?.data || (Array.isArray(rHue.data) ? rHue.data : []);

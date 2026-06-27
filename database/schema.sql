@@ -52,10 +52,26 @@ CREATE TABLE IF NOT EXISTS reservas (
   fecha_salida DATE NOT NULL,
   total_pago NUMERIC(12, 2) NOT NULL DEFAULT 0 CHECK (total_pago >= 0),
   noches INTEGER NOT NULL DEFAULT 0 CHECK (noches >= 0),
-  estado VARCHAR(30) NOT NULL DEFAULT 'pendiente',
+  estado VARCHAR(30) NOT NULL DEFAULT 'pendiente'
+    CHECK (estado IN ('pendiente', 'confirmada', 'cancelada')),
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT reservas_rango_fechas CHECK (fecha_salida > fecha_entrada)
 );
+
+CREATE OR REPLACE FUNCTION actualizar_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = CURRENT_TIMESTAMP;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_reservas_updated_at ON reservas;
+CREATE TRIGGER trg_reservas_updated_at
+  BEFORE UPDATE ON reservas
+  FOR EACH ROW
+  EXECUTE FUNCTION actualizar_updated_at();
 
 CREATE INDEX IF NOT EXISTS idx_reservas_alojamiento_fechas
   ON reservas (alojamiento_id, fecha_entrada, fecha_salida);

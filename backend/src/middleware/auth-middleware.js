@@ -19,9 +19,14 @@ export const verificarToken = (req, res, next) => {
 
   try {
     // 3. Verificar si el token es válido y no ha expirado
+    if (!process.env.JWT_SECRET) {
+      console.error('❌ JWT_SECRET no está configurado en el entorno');
+      return res.status(500).json({ error: 'Error de configuración del servidor' });
+    }
+
     const cifrado = jwt.verify(
       token,
-      process.env.JWT_SECRET || 'clave_secreta_sena',
+      process.env.JWT_SECRET,
     );
 
     /**
