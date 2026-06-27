@@ -11,6 +11,16 @@ const ICON_MAP = {
   restaurant: <span className="text-sm">🍽️</span>,
 };
 
+const FORMULARIO_VACIO = {
+  nombre: '',
+  ubicacion: '',
+  descripcion: '',
+  capacidad: '',
+  precio_noche: '',
+  imagenes: [''],
+  servicios_ids: [],
+};
+
 const Fincas = () => {
   const [fincas, setFincas] = useState([]);
   const [todosLosServicios, setTodosLosServicios] = useState([]);
@@ -22,15 +32,7 @@ const Fincas = () => {
   const [nuevaUrlGaleria, setNuevaUrlGaleria] = useState('');
   const [agregandoImg, setAgregandoImg] = useState(false);
 
-  const [nuevaFinca, setNuevaFinca] = useState({
-    nombre: '',
-    ubicacion: '',
-    descripcion: '',
-    capacidad: '',
-    precio_noche: '',
-    imagenes: [''],
-    servicios_ids: [],
-  });
+  const [nuevaFinca, setNuevaFinca] = useState({ ...FORMULARIO_VACIO });
 
   const obtenerFincas = async () => {
     try {
@@ -117,33 +119,43 @@ const Fincas = () => {
   const cerrarModal = () => {
     setModalAbierto(false);
     setEditandoId(null);
-    setNuevaFinca({ nombre: '', ubicacion: '', descripcion: '', capacidad: '', precio_noche: '', imagenes: [''], servicios_ids: [] });
+    setNuevaFinca({ ...FORMULARIO_VACIO });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const { nombre, ubicacion, descripcion, capacidad, precio_noche, imagenes, servicios_ids } = nuevaFinca;
 
-    if (!nuevaFinca.nombre || !nuevaFinca.ubicacion || !nuevaFinca.precio_noche) {
+    if (!nombre?.trim() || !ubicacion?.trim() || !precio_noche?.toString().trim()) {
       alert('Por favor, rellene los campos obligatorios (*)');
       return;
     }
 
-    try {
-      const imagenesValidas = nuevaFinca.imagenes.filter((u) => u.trim().length > 0);
-      const payload = {
-        nombre: nuevaFinca.nombre.trim(),
-        ubicacion: nuevaFinca.ubicacion.trim(),
-        descripcion: nuevaFinca.descripcion.trim() || '',
-        capacidad: nuevaFinca.capacidad ? parseInt(nuevaFinca.capacidad, 10) : 0,
-        precio_noche: parseFloat(nuevaFinca.precio_noche),
-        imagenes: imagenesValidas.length > 0 ? imagenesValidas : undefined,
-        servicios_ids: nuevaFinca.servicios_ids,
-      };
+    const precio = parseFloat(precio_noche);
+    if (isNaN(precio) || precio <= 0) {
+      alert('La tarifa por noche debe ser un número mayor a 0');
+      return;
+    }
 
-      if (editandoId) {
-        await api.put(`/fincas/${editandoId}`, payload);
-      } else {
+    const imagenesValidas = (imagenes || []).filter((u) => u.trim().length > 0);
+
+    const payload = {
+      nombre: nombre.trim(),
+      ubicacion: ubicacion.trim(),
+      descripcion: descripcion?.trim() || '',
+      capacidad: capacidad ? parseInt(capacidad, 10) : 0,
+      precio_noche: precio,
+      imagenes: imagenesValidas.length > 0 ? imagenesValidas : undefined,
+      servicios_ids: servicios_ids || [],
+    };
+
+    const esCreacion = editandoId === null || editandoId === undefined;
+
+    try {
+      if (esCreacion) {
         await api.post('/fincas', payload);
+      } else {
+        await api.put(`/fincas/${editandoId}`, payload);
       }
 
       cerrarModal();
