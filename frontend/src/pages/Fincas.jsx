@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import api from '../services/api';
 
 const Fincas = () => {
   const [fincas, setFincas] = useState([]);
@@ -13,35 +14,14 @@ const Fincas = () => {
     precio_noche: '',
   });
 
-  // 1. Obtener listado de alojamientos desde el Backend
   const obtenerFincas = async () => {
     try {
       setCargando(true);
-      const token = localStorage.getItem('token');
-
-      const response = await fetch('http://localhost:4000/api/fincas', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: token ? `Bearer ${token}` : '',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`Error en el servidor: ${response.status}`);
-      }
-
-      const resultado = await response.json();
-
-      if (Array.isArray(resultado)) {
-        setFincas(resultado);
-      } else if (resultado && resultado.data && Array.isArray(resultado.data)) {
-        setFincas(resultado.data);
-      } else if (resultado && Array.isArray(resultado.data)) {
-        setFincas(resultado.data);
-      }
+      const res = await api.get('/fincas');
+      const lista = res.data?.data || (Array.isArray(res.data) ? res.data : []);
+      setFincas(lista);
     } catch (error) {
-      console.error('❌ Error al cargar alojamientos:', error);
+      console.error('Error al cargar alojamientos:', error);
     } finally {
       setCargando(false);
     }
@@ -52,127 +32,67 @@ const Fincas = () => {
   }, []);
 
   const handleChange = (e) => {
-    setNuevaFinca({
-      ...nuevaFinca,
+    setNuevaFinca((prev) => ({
+      ...prev,
       [e.target.name]: e.target.value,
-    });
+    }));
   };
 
-  // 2. Enviar datos del nuevo alojamiento (POST)
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (
-      !nuevaFinca.nombre ||
-      !nuevaFinca.ubicacion ||
-      !nuevaFinca.precio_noche
-    ) {
+    if (!nuevaFinca.nombre || !nuevaFinca.ubicacion || !nuevaFinca.precio_noche) {
       alert('Por favor, rellene los campos obligatorios (*)');
       return;
     }
 
     try {
-      const token = localStorage.getItem('token');
+      const payload = {
+        nombre: nuevaFinca.nombre.trim(),
+        ubicacion: nuevaFinca.ubicacion.trim(),
+        descripcion: nuevaFinca.descripcion.trim() || '',
+        capacidad: nuevaFinca.capacidad ? parseInt(nuevaFinca.capacidad, 10) : 0,
+        precio_noche: parseFloat(nuevaFinca.precio_noche),
+      };
 
-      const response = await fetch('http://localhost:4000/api/fincas', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: token ? `Bearer ${token}` : '',
-        },
-        body: JSON.stringify({
-          nombre: nuevaFinca.nombre,
-          ubicacion: nuevaFinca.ubicacion,
-          descripcion: nuevaFinca.descripcion || '',
-          capacidad: nuevaFinca.capacidad ? parseInt(nuevaFinca.capacidad) : 0,
-          precio_noche: parseFloat(nuevaFinca.precio_noche),
-          usuario_id: 1,
-        }),
-      });
+      await api.post('/fincas', payload);
 
-      const resultado = await response.json();
-
-      if (resultado.success || response.ok) {
-        alert('¡Alojamiento registrado con éxito!');
-        setModalAbierto(false);
-        setNuevaFinca({
-          nombre: '',
-          ubicacion: '',
-          descripcion: '',
-          capacidad: '',
-          precio_noche: '',
-        });
-        obtenerFincas();
-      } else {
-        alert(
-          `Error: ${resultado.error || 'No se pudo guardar el alojamiento'}`,
-        );
-      }
+      setModalAbierto(false);
+      setNuevaFinca({ nombre: '', ubicacion: '', descripcion: '', capacidad: '', precio_noche: '' });
+      await obtenerFincas();
     } catch (error) {
-      console.error('❌ Error en la petición POST:', error);
-      alert('Fallo de comunicación al guardar el alojamiento.');
+      const mensaje = error.response?.data?.error || 'No se pudo guardar el alojamiento';
+      alert(`Error: ${mensaje}`);
     }
   };
 
-  // 3. Eliminar un alojamiento (DELETE)
   const eliminarFinca = async (id, nombre) => {
-    const confirmar = window.confirm(
-      `¿Estás seguro de que deseas eliminar el alojamiento "${nombre}"?`,
-    );
-
-    if (!confirmar) return;
+    if (!window.confirm(`¿Estás seguro de que deseas eliminar el alojamiento "${nombre}"?`)) return;
 
     try {
-      const token = localStorage.getItem('token');
-
-      const response = await fetch(`http://localhost:4000/api/fincas/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: token ? `Bearer ${token}` : '',
-        },
-      });
-
-      if (response.ok) {
-        alert('Alojamiento eliminado correctamente.');
-        // Filtramos el estado local para quitar la finca eliminada sin necesidad de recargar de la BD
-        setFincas(fincas.filter((finca) => finca.id !== id));
-      } else {
-        const errorData = await response.json();
-        // Controlamos si la BD rechaza el borrado por llaves foráneas
-        if (
-          response.status === 500 &&
-          errorData.error?.includes('foreign key')
-        ) {
-          alert(
-            'No se puede eliminar la finca porque tiene reservas asociadas.',
-          );
-        } else {
-          alert(
-            `No se pudo eliminar: ${errorData.error || 'Error del servidor'}`,
-          );
-        }
-      }
+      await api.delete(`/fincas/${id}`);
+      setFincas((prev) => prev.filter((f) => f.id !== id));
     } catch (error) {
-      console.error('❌ Error al eliminar:', error);
-      alert('Hubo un fallo en la comunicación para eliminar el registro.');
+      const mensaje = error.response?.data?.error || 'Error del servidor';
+      if (mensaje.toLowerCase().includes('reservas')) {
+        alert('No se puede eliminar la finca porque tiene reservas asociadas.');
+      } else {
+        alert(`No se pudo eliminar: ${mensaje}`);
+      }
     }
   };
 
   return (
     <div className="p-6 max-w-7xl mx-auto pl-72">
-      {/* Encabezado */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
           <h1 className="text-3xl font-bold text-[#0A4D27] tracking-tight">
             GESTIÓN DE ALOJAMIENTOS
           </h1>
           <p className="text-gray-600 mt-1">
-            Módulo administrativo para el ingreso y control de propiedades
-            rurales del sistema.
+            Módulo administrativo para el ingreso y control de propiedades rurales del sistema.
           </p>
         </div>
-
         <button
           onClick={() => setModalAbierto(true)}
           className="bg-[#0A4D27] hover:bg-[#083e1f] text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-200">
@@ -180,7 +100,6 @@ const Fincas = () => {
         </button>
       </div>
 
-      {/* Tabla */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         {cargando ? (
           <div className="p-8 text-center text-gray-500 font-medium">
@@ -194,19 +113,14 @@ const Fincas = () => {
                   <th className="p-4 font-semibold">Propiedad</th>
                   <th className="p-4 font-semibold">Ubicación</th>
                   <th className="p-4 font-semibold text-center">Capacidad</th>
-                  <th className="p-4 font-semibold text-right">
-                    Tarifa por Noche
-                  </th>
+                  <th className="p-4 font-semibold text-right">Tarifa por Noche</th>
                   <th className="p-4 font-semibold text-center">Estado</th>
-                  {/* NUEVA COLUMNA: ACCIONES */}
                   <th className="p-4 font-semibold text-center">Acciones</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {fincas.map((finca, index) => (
-                  <tr
-                    key={finca.id || index}
-                    className="hover:bg-gray-50 transition-colors">
+                  <tr key={finca.id || index} className="hover:bg-gray-50 transition-colors">
                     <td className="p-4 font-bold text-[#0A4D27]">
                       {finca.nombre ? finca.nombre.toUpperCase() : 'SIN NOMBRE'}
                     </td>
@@ -215,34 +129,27 @@ const Fincas = () => {
                       {finca.capacidad || 0} personas
                     </td>
                     <td className="p-4 text-right font-bold text-emerald-700">
-                      $
-                      {finca.precio_noche
-                        ? Number(finca.precio_noche).toLocaleString('co')
-                        : 0}
+                      ${finca.precio_noche ? Number(finca.precio_noche).toLocaleString('co') : 0}
                     </td>
                     <td className="p-4 text-center">
                       <span className="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border border-emerald-200">
                         {finca.estado || 'disponible'}
                       </span>
                     </td>
-                    {/* NUEVO BOTÓN: ELIMINAR */}
                     <td className="p-4 text-center">
                       <button
                         onClick={() => eliminarFinca(finca.id, finca.nombre)}
                         className="bg-red-100 hover:bg-red-200 text-red-700 font-bold py-1 px-3 rounded-lg text-sm transition duration-150 border border-red-200"
                         title="Eliminar propiedad">
-                        🗑️ Eliminar
+                        Eliminar
                       </button>
                     </td>
                   </tr>
                 ))}
                 {fincas.length === 0 && (
                   <tr>
-                    <td
-                      colSpan="6"
-                      className="p-8 text-center text-gray-400">
-                      No se han registrado alojamientos en el sistema
-                      actualmente.
+                    <td colSpan="6" className="p-8 text-center text-gray-400">
+                      No se han registrado alojamientos en el sistema actualmente.
                     </td>
                   </tr>
                 )}
@@ -252,17 +159,13 @@ const Fincas = () => {
         )}
       </div>
 
-      {/* Modal Formulario */}
       {modalAbierto && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50 p-4">
           <div className="bg-[#F3E9DC] p-6 rounded-2xl w-full max-w-md shadow-2xl border border-[#d8ccbc]">
             <h2 className="text-xl font-bold text-[#0A4D27] mb-4 border-b-2 border-[#0A4D27] pb-2">
               Registrar Nuevo Alojamiento
             </h2>
-
-            <form
-              onSubmit={handleSubmit}
-              className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-1">
                   Nombre del Alojamiento *
@@ -277,7 +180,6 @@ const Fincas = () => {
                   placeholder="Ej: Finca Sena Rural"
                 />
               </div>
-
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-1">
                   Ubicación / Municipio *
@@ -292,7 +194,6 @@ const Fincas = () => {
                   placeholder="Ej: Turbaco"
                 />
               </div>
-
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-1">
@@ -322,7 +223,6 @@ const Fincas = () => {
                   />
                 </div>
               </div>
-
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-1">
                   Descripción de la Propiedad
@@ -333,9 +233,9 @@ const Fincas = () => {
                   onChange={handleChange}
                   rows="3"
                   className="w-full p-2.5 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0A4D27] resize-none"
-                  placeholder="Detalles de las comodidades..."></textarea>
+                  placeholder="Detalles de las comodidades..."
+                />
               </div>
-
               <div className="flex justify-between items-center pt-2 gap-3">
                 <button
                   type="button"
