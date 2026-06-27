@@ -15,6 +15,7 @@ const Fincas = () => {
   const [fincas, setFincas] = useState([]);
   const [todosLosServicios, setTodosLosServicios] = useState([]);
   const [modalAbierto, setModalAbierto] = useState(false);
+  const [editandoId, setEditandoId] = useState(null);
   const [cargando, setCargando] = useState(true);
   const [galeriaFinca, setGaleriaFinca] = useState(null);
   const [galeriaIndice, setGaleriaIndice] = useState(0);
@@ -99,6 +100,26 @@ const Fincas = () => {
     }));
   };
 
+  const abrirEdicion = (finca) => {
+    setEditandoId(finca.id);
+    setNuevaFinca({
+      nombre: finca.nombre || '',
+      ubicacion: finca.ubicacion || '',
+      descripcion: finca.descripcion || '',
+      capacidad: finca.capacidad ? String(finca.capacidad) : '',
+      precio_noche: finca.precio_noche ? String(finca.precio_noche) : '',
+      imagenes: (finca.imagenes || []).length > 0 ? [...finca.imagenes] : [''],
+      servicios_ids: finca.servicios_ids || finca.servicios?.map((s) => s.id) || [],
+    });
+    setModalAbierto(true);
+  };
+
+  const cerrarModal = () => {
+    setModalAbierto(false);
+    setEditandoId(null);
+    setNuevaFinca({ nombre: '', ubicacion: '', descripcion: '', capacidad: '', precio_noche: '', imagenes: [''], servicios_ids: [] });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -119,10 +140,13 @@ const Fincas = () => {
         servicios_ids: nuevaFinca.servicios_ids,
       };
 
-      await api.post('/fincas', payload);
+      if (editandoId) {
+        await api.put(`/fincas/${editandoId}`, payload);
+      } else {
+        await api.post('/fincas', payload);
+      }
 
-      setModalAbierto(false);
-      setNuevaFinca({ nombre: '', ubicacion: '', descripcion: '', capacidad: '', precio_noche: '', imagenes: [''], servicios_ids: [] });
+      cerrarModal();
       await obtenerFincas();
     } catch (error) {
       const mensaje = error.response?.data?.error || 'No se pudo guardar el alojamiento';
@@ -224,7 +248,7 @@ const Fincas = () => {
           </p>
         </div>
         <button
-          onClick={() => setModalAbierto(true)}
+          onClick={() => { setEditandoId(null); setNuevaFinca({ nombre: '', ubicacion: '', descripcion: '', capacidad: '', precio_noche: '', imagenes: [''], servicios_ids: [] }); setModalAbierto(true); }}
           className="bg-[#0A4D27] hover:bg-[#083e1f] text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-200">
           + Ingresar Nuevo Alojamiento
         </button>
@@ -277,12 +301,20 @@ const Fincas = () => {
                       </button>
                     </td>
                     <td className="p-4 text-center">
-                      <button
-                        onClick={() => eliminarFinca(finca.id, finca.nombre)}
-                        className="bg-red-100 hover:bg-red-200 text-red-700 font-bold py-1 px-3 rounded-lg text-sm transition duration-150 border border-red-200"
-                        title="Eliminar propiedad">
-                        Eliminar
-                      </button>
+                      <div className="flex justify-center gap-2">
+                        <button
+                          onClick={() => abrirEdicion(finca)}
+                          className="bg-amber-100 hover:bg-amber-200 text-amber-700 font-bold py-1 px-3 rounded-lg text-sm transition duration-150 border border-amber-200"
+                          title="Editar propiedad">
+                          Editar
+                        </button>
+                        <button
+                          onClick={() => eliminarFinca(finca.id, finca.nombre)}
+                          className="bg-red-100 hover:bg-red-200 text-red-700 font-bold py-1 px-3 rounded-lg text-sm transition duration-150 border border-red-200"
+                          title="Eliminar propiedad">
+                          Eliminar
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -304,7 +336,7 @@ const Fincas = () => {
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50 p-4 overflow-y-auto">
           <div className="bg-[#F3E9DC] p-6 rounded-2xl w-full max-w-lg shadow-2xl border border-[#d8ccbc] my-8">
             <h2 className="text-xl font-bold text-[#0A4D27] mb-4 border-b-2 border-[#0A4D27] pb-2">
-              Registrar Nuevo Alojamiento
+              {editandoId ? 'Editar Alojamiento' : 'Registrar Nuevo Alojamiento'}
             </h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
@@ -446,7 +478,7 @@ const Fincas = () => {
               <div className="flex justify-between items-center pt-2 gap-3">
                 <button
                   type="button"
-                  onClick={() => { setModalAbierto(false); setNuevaFinca({ nombre: '', ubicacion: '', descripcion: '', capacidad: '', precio_noche: '', imagenes: [''], servicios_ids: [] }); }}
+                  onClick={cerrarModal}
                   className="bg-gray-400 hover:bg-gray-500 text-white font-bold py-2.5 px-5 rounded-lg transition duration-150">
                   Cancelar
                 </button>

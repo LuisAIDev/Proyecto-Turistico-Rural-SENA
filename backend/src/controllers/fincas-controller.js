@@ -91,7 +91,7 @@ const fincasController = {
 
   update: async (req, res) => {
     const { id } = req.params;
-    const { nombre, ubicacion, descripcion, capacidad, precio_noche, estado, imagenes } =
+    const { nombre, ubicacion, descripcion, capacidad, precio_noche, estado, imagenes, servicios_ids } =
       req.body;
 
     const imagenesFinal = Array.isArray(imagenes) && imagenes.length > 0
@@ -99,6 +99,8 @@ const fincasController = {
       : ['https://placehold.co/800x600/0A4D27/FFFFFF?text=SENA+RURAL'];
 
     try {
+      await pool.query('BEGIN');
+
       const query = `
         UPDATE alojamientos 
         SET nombre = $1, ubicacion = $2, descripcion = $3, capacidad = $4, precio_noche = $5, estado = $6, imagenes = $7
@@ -116,10 +118,24 @@ const fincasController = {
       ]);
 
       if (result.rowCount === 0) {
+        await pool.query('ROLLBACK');
         return res
           .status(404)
           .json({ success: false, error: 'Finca no encontrada' });
       }
+
+      if (servicios_ids && Array.isArray(servicios_ids)) {
+        await pool.query('DELETE FROM alojamiento_servicios WHERE alojamiento_id = $1', [id]);
+        if (servicios_ids.length > 0) {
+          await pool.query(
+            `INSERT INTO alojamiento_servicios (alojamiento_id, servicio_id)
+             SELECT $1, unnest($2::int[])`,
+            [id, servicios_ids],
+          );
+        }
+      }
+
+      await pool.query('COMMIT');
 
       res.json({
         success: true,
@@ -127,6 +143,7 @@ const fincasController = {
         data: result.rows[0],
       });
     } catch (error) {
+      await pool.query('ROLLBACK');
       console.error('❌ Error al actualizar finca:', error.message);
       res
         .status(500)
