@@ -66,7 +66,7 @@ function Huespedes() {
       try {
         await api.delete(`/huespedes/${id}`);
         cargarHuespedes();
-      } catch (error) {
+      } catch {
         alert(
           'No se pudo eliminar. Es posible que el huésped tenga reservas activas.',
         );
@@ -142,6 +142,21 @@ function Huespedes() {
             className="flex items-center gap-2 bg-[#14532D] text-white px-6 py-3 rounded-2xl font-bold shadow-lg hover:bg-green-800 transition-all active:scale-95">
             <UserPlus size={20} /> Nuevo Cliente
           </button>
+        </div>
+
+        {/* Tarjeta de Resumen */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex items-center gap-4">
+            <div className="p-3 bg-green-100 text-green-700 rounded-xl">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total de Huéspedes</p>
+              <p className="text-2xl font-black text-gray-800">{huespedes.length}</p>
+            </div>
+          </div>
         </div>
 
         {/* Barra de Búsqueda */}

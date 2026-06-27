@@ -36,16 +36,21 @@ const fincasController = {
       precio_noche,
       servicios,
       servicios_ids,
+      imagenes,
     } = req.body;
 
     const usuario_id = req.usuario.id;
     const serviciosSeleccionados = servicios_ids || servicios || [];
 
+    const imagenesFinal = Array.isArray(imagenes) && imagenes.length > 0
+      ? imagenes.filter((u) => typeof u === 'string' && u.trim().length > 0)
+      : ['https://placehold.co/800x600/0A4D27/FFFFFF?text=SENA+RURAL'];
+
     try {
       await pool.query('BEGIN');
       const queryFinca = `
-        INSERT INTO alojamientos (nombre, ubicacion, descripcion, capacidad, precio_noche, estado, usuario_id) 
-        VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *
+        INSERT INTO alojamientos (nombre, ubicacion, descripcion, capacidad, precio_noche, estado, usuario_id, imagenes) 
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *
       `;
 
       const resultFinca = await pool.query(queryFinca, [
@@ -56,6 +61,7 @@ const fincasController = {
         precio_noche,
         'disponible',
         usuario_id,
+        imagenesFinal,
       ]);
 
       if (serviciosSeleccionados.length > 0) {
@@ -83,14 +89,18 @@ const fincasController = {
 
   update: async (req, res) => {
     const { id } = req.params;
-    const { nombre, ubicacion, descripcion, capacidad, precio_noche, estado } =
+    const { nombre, ubicacion, descripcion, capacidad, precio_noche, estado, imagenes } =
       req.body;
+
+    const imagenesFinal = Array.isArray(imagenes) && imagenes.length > 0
+      ? imagenes.filter((u) => typeof u === 'string' && u.trim().length > 0)
+      : ['https://placehold.co/800x600/0A4D27/FFFFFF?text=SENA+RURAL'];
 
     try {
       const query = `
         UPDATE alojamientos 
-        SET nombre = $1, ubicacion = $2, descripcion = $3, capacidad = $4, precio_noche = $5, estado = $6
-        WHERE id = $7 RETURNING *
+        SET nombre = $1, ubicacion = $2, descripcion = $3, capacidad = $4, precio_noche = $5, estado = $6, imagenes = $7
+        WHERE id = $8 RETURNING *
       `;
       const result = await pool.query(query, [
         nombre,
@@ -99,6 +109,7 @@ const fincasController = {
         capacidad,
         precio_noche,
         estado,
+        imagenesFinal,
         id,
       ]);
 

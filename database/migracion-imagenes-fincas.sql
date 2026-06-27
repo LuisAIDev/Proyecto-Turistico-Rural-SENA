@@ -1,0 +1,1 @@
+ALTER TABLE alojamientos ADD COLUMN IF NOT EXISTS imagenes TEXT[] DEFAULT '{}';
