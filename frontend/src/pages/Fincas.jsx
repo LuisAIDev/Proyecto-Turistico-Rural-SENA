@@ -185,28 +185,34 @@ const Fincas = () => {
     }
   };
 
-  const handleAgregarImagenGaleria = async (e) => {
-    e.preventDefault();
-    const url = nuevaUrlGaleria.trim();
-    if (!url) return;
-    setAgregandoImg(true);
+  const handleAgregarImagenGaleriaDirecto = async () => {
+    console.log("¡Botón presionado con éxito!");
+    alert("Iniciando proceso de guardado...");
+
+    if (!nuevaUrlGaleria || !nuevaUrlGaleria.trim()) {
+      alert("Por favor, ingresa una URL válida primero.");
+      return;
+    }
+
+    const urlFormateada = nuevaUrlGaleria.trim();
+    const fincaId = galeriaFinca?.id_finca || galeriaFinca?.id;
+
+    console.log("Enviando a ID:", fincaId, "URL:", urlFormateada);
+
     try {
-      const res = await api.put(`/fincas/${galeriaFinca.id}/imagenes`, { url });
-      const actualizada = res.data?.data;
-      if (actualizada) {
-        setGaleriaFinca(actualizada);
-        setFincas((prev) => prev.map((f) => (f.id === actualizada.id ? actualizada : f)));
+      const res = await api.put(`/fincas/${fincaId}/imagenes`, { url: urlFormateada });
+
+      alert("Servidor respondió con éxito");
+      if (res.data?.data) {
+        setGaleriaFinca(res.data.data);
+        setFincas((prev) => prev.map((f) => (f.id === res.data.data.id ? res.data.data : f)));
       } else {
         await refrescarGaleria();
       }
-      setNuevaUrlGaleria('');
-    } catch (err) {
-      const status = err.response?.status || 'sin respuesta';
-      const msg = err.response?.data?.error || err.message || 'Error al agregar imagen';
-      console.error(`[Fincas] Error al agregar imagen (HTTP ${status}):`, msg, err);
-      alert(`Error (${status}): ${msg}`);
-    } finally {
-      setAgregandoImg(false);
+      setNuevaUrlGaleria("");
+    } catch (error) {
+      console.error("Error crítico capturado:", error);
+      alert("Error en la petición: " + (error.response?.status || error.message));
     }
   };
 
@@ -592,7 +598,7 @@ const Fincas = () => {
               <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">
                 Administrar Imágenes de este Alojamiento
               </p>
-              <form onSubmit={handleAgregarImagenGaleria} className="flex gap-3">
+              <div className="flex gap-3">
                 <input
                   type="url"
                   value={nuevaUrlGaleria}
@@ -602,13 +608,13 @@ const Fincas = () => {
                 />
                 <button
                   type="button"
-                  onClick={handleAgregarImagenGaleria}
+                  onClick={handleAgregarImagenGaleriaDirecto}
                   className="bg-[#0A4D27] hover:bg-[#083e1f] text-white font-bold px-5 py-3 rounded-xl text-xs uppercase tracking-wider transition-colors flex items-center gap-1.5"
                 >
                   <Plus size={16} />
-                  {agregandoImg ? '...' : 'Agregar Imagen'}
+                  Agregar Imagen
                 </button>
-              </form>
+              </div>
             </div>
           </div>
         </div>
