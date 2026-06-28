@@ -28,7 +28,6 @@ const fincasController = {
   },
 
   create: async (req, res) => {
-    console.log("=== CONTROL SENIOR - DATA ENTRANTE ===", req.body);
     const {
       nombre,
       ubicacion,
@@ -89,12 +88,8 @@ const fincasController = {
       });
     } catch (error) {
       await pool.query('ROLLBACK');
-      console.error("CRASH EN BACKEND DE FINCAS:", error);
-      return res.status(500).json({
-        error: error.message,
-        detail: error.detail || "No sql detail available",
-        stack: error.stack,
-      });
+      console.error('Error al crear finca:', error.message);
+      res.status(500).json({ success: false, error: 'Error al registrar la finca.' });
     }
   },
 
@@ -153,12 +148,8 @@ const fincasController = {
       });
     } catch (error) {
       await pool.query('ROLLBACK');
-      console.error("Error detallado en backend:", error);
-      return res.status(500).json({
-        error: error.message,
-        detail: error.detail,
-        stack: error.stack,
-      });
+      console.error('Error al actualizar finca:', error.message);
+      res.status(500).json({ success: false, error: 'Error al actualizar los datos.' });
     }
   },
 
