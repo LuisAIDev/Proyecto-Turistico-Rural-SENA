@@ -42,6 +42,13 @@ const fincasController = {
     const usuario_id = req.usuario.id;
     const serviciosSeleccionados = servicios_ids || servicios || [];
 
+    const precioFinal = parseFloat(precio_noche);
+    if (isNaN(precioFinal) || precioFinal <= 0) {
+      return res.status(400).json({ success: false, error: 'El precio por noche debe ser un número válido mayor a 0' });
+    }
+
+    const capacidadFinal = capacidad ? parseInt(capacidad, 10) : 0;
+
     const imagenesFinal = Array.isArray(imagenes) && imagenes.length > 0
       ? imagenes.filter((u) => typeof u === 'string' && u.trim().length > 0)
       : ['https://placehold.co/800x600/0A4D27/FFFFFF?text=SENA+RURAL'];
@@ -59,8 +66,8 @@ const fincasController = {
         nombre,
         ubicacion,
         descripcion,
-        capacidad,
-        precio_noche,
+        capacidadFinal,
+        precioFinal,
         'disponible',
         usuario_id,
         imagenesFinal,
@@ -82,10 +89,12 @@ const fincasController = {
       });
     } catch (error) {
       await pool.query('ROLLBACK');
-      console.error('❌ Error al crear finca:', error.message);
-      res
-        .status(500)
-        .json({ success: false, error: 'Error al registrar la finca.' });
+      console.error("Error detallado en backend:", error);
+      return res.status(500).json({
+        message: "Error interno en el servidor",
+        error: error.message,
+        detail: error.detail,
+      });
     }
   },
 
@@ -144,10 +153,12 @@ const fincasController = {
       });
     } catch (error) {
       await pool.query('ROLLBACK');
-      console.error('❌ Error al actualizar finca:', error.message);
-      res
-        .status(500)
-        .json({ success: false, error: 'Error al actualizar los datos.' });
+      console.error("Error detallado en backend:", error);
+      return res.status(500).json({
+        message: "Error interno en el servidor",
+        error: error.message,
+        detail: error.detail,
+      });
     }
   },
 
