@@ -56,7 +56,6 @@ const fincasController = {
 
     try {
       await pool.query('BEGIN');
-      await pool.query('ALTER TABLE alojamientos ADD COLUMN IF NOT EXISTS imagenes TEXT[] DEFAULT $1', [['https://placehold.co/800x600/0A4D27/FFFFFF?text=SENA+RURAL']]);
 
       const queryFinca = `
         INSERT INTO alojamientos (nombre, ubicacion, descripcion, capacidad, precio_noche, estado, usuario_id, imagenes) 
