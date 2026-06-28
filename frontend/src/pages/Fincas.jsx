@@ -161,8 +161,10 @@ const Fincas = () => {
       cerrarModal();
       await obtenerFincas();
     } catch (error) {
-      const mensaje = error.response?.data?.error || 'No se pudo guardar el alojamiento';
-      alert(`Error: ${mensaje}`);
+      console.error("Error completo al registrar:", error);
+      const mensajeServidor = error.response?.data?.message || error.response?.data?.error || error.message;
+      const statusHttp = error.response?.status || "Sin código";
+      alert(`Error del Servidor (${statusHttp}): ${mensajeServidor}`);
     }
   };
 
