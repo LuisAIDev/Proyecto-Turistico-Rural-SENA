@@ -28,6 +28,7 @@ const fincasController = {
   },
 
   create: async (req, res) => {
+    console.log("=== CONTROL SENIOR - DATA ENTRANTE ===", req.body);
     const {
       nombre,
       ubicacion,
@@ -89,11 +90,11 @@ const fincasController = {
       });
     } catch (error) {
       await pool.query('ROLLBACK');
-      console.error("Error detallado en backend:", error);
+      console.error("CRASH EN BACKEND DE FINCAS:", error);
       return res.status(500).json({
-        message: "Error interno en el servidor",
         error: error.message,
-        detail: error.detail,
+        detail: error.detail || "No sql detail available",
+        stack: error.stack,
       });
     }
   },
@@ -155,9 +156,9 @@ const fincasController = {
       await pool.query('ROLLBACK');
       console.error("Error detallado en backend:", error);
       return res.status(500).json({
-        message: "Error interno en el servidor",
         error: error.message,
         detail: error.detail,
+        stack: error.stack,
       });
     }
   },
