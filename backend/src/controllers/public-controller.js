@@ -15,10 +15,18 @@ const ensureValoracionesTable = async () => {
   `);
 };
 
+const ensureDescuentoColumn = async () => {
+  await pool.query(`
+    ALTER TABLE alojamientos
+    ADD COLUMN IF NOT EXISTS descuento INTEGER NOT NULL DEFAULT 0 CHECK (descuento >= 0 AND descuento <= 100)
+  `);
+};
+
 const publicController = {
   getAlojamientos: async (req, res) => {
     try {
       await ensureValoracionesTable();
+      await ensureDescuentoColumn();
       const result = await pool.query(`
         SELECT
           a.id,
@@ -27,6 +35,7 @@ const publicController = {
           a.descripcion,
           a.capacidad,
           a.precio_noche,
+          a.descuento,
           a.estado,
           a.imagenes,
           COALESCE(json_agg(s.*) FILTER (WHERE s.id IS NOT NULL), '[]') AS servicios,
