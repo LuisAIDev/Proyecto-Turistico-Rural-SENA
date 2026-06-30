@@ -17,6 +17,14 @@ const ensureTable = async () => {
   `);
 };
 
+const ensureSandboxColumns = async () => {
+  await pool.query(`
+    ALTER TABLE reservas
+    ADD COLUMN IF NOT EXISTS estado_pago VARCHAR(30) NOT NULL DEFAULT 'Pendiente',
+    ADD COLUMN IF NOT EXISTS transaccion_id VARCHAR(50) NULL
+  `);
+};
+
 const pagosController = {
   getAll: async (req, res) => {
     try {
@@ -73,6 +81,65 @@ const pagosController = {
         return res.status(400).json({ error: 'El alojamiento especificado no existe' });
       }
       res.status(500).json({ error: 'Error al registrar el pago' });
+    }
+  },
+
+  procesar: async (req, res) => {
+    try {
+      await ensureSandboxColumns();
+
+      const { reserva_id, monto, numero_tarjeta, nombre_titular, metodo_pago } = req.body;
+
+      if (!reserva_id || !monto || !numero_tarjeta || !nombre_titular) {
+        return res.status(400).json({ error: 'Faltan datos obligatorios: reserva_id, monto, numero_tarjeta, nombre_titular' });
+      }
+
+      const reserva = await pool.query(
+        'SELECT id, estado, total_pago FROM reservas WHERE id = $1',
+        [reserva_id]
+      );
+
+      if (reserva.rowCount === 0) {
+        return res.status(404).json({ error: 'Reserva no encontrada' });
+      }
+
+      if (reserva.rows[0].estado === 'cancelada') {
+        return res.status(400).json({ error: 'No se puede procesar el pago de una reserva cancelada' });
+      }
+
+      if (reserva.rows[0].estado === 'confirmada') {
+        return res.status(400).json({ error: 'La reserva ya está confirmada' });
+      }
+
+      const montoNumerico = Math.round(parseFloat(monto) * 100) / 100;
+      if (montoNumerico <= 0) {
+        return res.status(400).json({ error: 'El monto debe ser un número mayor a 0' });
+      }
+
+      const tarjetaLimpia = numero_tarjeta.replace(/\s+/g, '');
+      if (!tarjetaLimpia.endsWith('4242')) {
+        return res.status(400).json({ error: 'Tarjeta rechazada. Use una tarjeta de prueba que termine en 4242.' });
+      }
+
+      const transaccion_id = `TX-SENA-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+
+      await pool.query(
+        `UPDATE reservas
+         SET estado = 'confirmada',
+             estado_pago = 'Pagada',
+             transaccion_id = $2
+         WHERE id = $1`,
+        [reserva_id, transaccion_id]
+      );
+
+      res.json({
+        success: true,
+        transaccion_id,
+        mensaje: 'Pago aprobado con éxito',
+      });
+    } catch (err) {
+      console.error('Error al procesar pago sandbox:', err.message);
+      res.status(500).json({ error: 'Error al procesar el pago' });
     }
   },
 };

@@ -21,6 +21,8 @@ const reservasController = {
           r.fecha_entrada,
           r.fecha_salida,
           r.estado,
+          r.estado_pago,
+          r.transaccion_id,
           r.total_pago,
           r.noches,
           h.nombre AS nombre_cliente,

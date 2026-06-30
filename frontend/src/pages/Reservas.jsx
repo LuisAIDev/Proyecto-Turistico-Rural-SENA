@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from '../services/api';
-import { PlusCircle, CheckCircle, XCircle, Trash2 } from 'lucide-react';
+import { PlusCircle, CheckCircle, XCircle, Trash2, CreditCard } from 'lucide-react';
+import CheckoutForm from '../components/CheckoutForm';
 
 /**
  * ==========================================
@@ -45,6 +46,7 @@ function Reservas() {
     fecha_entrada: '',
     fecha_salida: '',
   });
+  const [pagoReserva, setPagoReserva] = useState(null);
 
   const cargarDatos = async () => {
     setLoading(true);
@@ -117,6 +119,11 @@ function Reservas() {
     }
   };
 
+  const handlePagoExitoso = () => {
+    setPagoReserva(null);
+    cargarDatos();
+  };
+
   const hoy = new Date().toISOString().split('T')[0];
 
   if (loading)
@@ -171,16 +178,27 @@ function Reservas() {
                           {cfg.label}
                         </span>
                       </td>
-                      <td className="px-6 py-4 flex gap-2 justify-center">
-                        <button onClick={() => cambiarEstado(r.id, 'confirmar')}>
-                          <CheckCircle size={16} className="text-green-600" />
-                        </button>
-                        <button onClick={() => cambiarEstado(r.id, 'cancelar')}>
-                          <XCircle size={16} className="text-red-500" />
-                        </button>
-                        <button onClick={() => eliminarReserva(r.id)}>
-                          <Trash2 size={16} className="text-gray-400 hover:text-red-600 transition-colors" />
-                        </button>
+                      <td className="px-6 py-4">
+                        <div className="flex gap-2 justify-center items-center">
+                          {r.estado === 'pendiente' && !r.estado_pago?.startsWith('Pag') && (
+                            <button
+                              onClick={() => setPagoReserva(r)}
+                              className="bg-green-700 text-white px-3 py-1.5 rounded-xl text-xs font-black hover:bg-green-600 transition-colors flex items-center gap-1"
+                            >
+                              <CreditCard size={12} />
+                              Pagar
+                            </button>
+                          )}
+                          <button onClick={() => cambiarEstado(r.id, 'confirmar')}>
+                            <CheckCircle size={16} className="text-green-600" />
+                          </button>
+                          <button onClick={() => cambiarEstado(r.id, 'cancelar')}>
+                            <XCircle size={16} className="text-red-500" />
+                          </button>
+                          <button onClick={() => eliminarReserva(r.id)}>
+                            <Trash2 size={16} className="text-gray-400 hover:text-red-600 transition-colors" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -268,6 +286,14 @@ function Reservas() {
             </form>
           </div>
         </div>
+      )}
+
+      {pagoReserva && (
+        <CheckoutForm
+          reserva={pagoReserva}
+          onClose={() => setPagoReserva(null)}
+          onSuccess={handlePagoExitoso}
+        />
       )}
     </div>
   );

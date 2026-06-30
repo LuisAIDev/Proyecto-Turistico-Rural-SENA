@@ -6,5 +6,6 @@ const router = express.Router();
 
 router.get('/', verificarToken, pagosController.getAll);
 router.post('/', verificarToken, pagosController.create);
+router.post('/procesar', verificarToken, pagosController.procesar);
 
 export default router;
