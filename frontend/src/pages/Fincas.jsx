@@ -17,6 +17,7 @@ const FORMULARIO_VACIO = {
   descripcion: '',
   capacidad: '',
   precio_noche: '',
+  descuento: '',
   imagenes: [''],
   servicios_ids: [],
 };
@@ -110,6 +111,7 @@ const Fincas = () => {
       descripcion: finca.descripcion || '',
       capacidad: finca.capacidad ? String(finca.capacidad) : '',
       precio_noche: finca.precio_noche ? String(finca.precio_noche) : '',
+      descuento: finca.descuento ? String(finca.descuento) : '',
       imagenes: (finca.imagenes || []).length > 0 ? [...finca.imagenes] : [''],
       servicios_ids: finca.servicios_ids || finca.servicios?.map((s) => s.id) || [],
     });
@@ -124,7 +126,7 @@ const Fincas = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { nombre, ubicacion, descripcion, capacidad, precio_noche, imagenes, servicios_ids } = nuevaFinca;
+    const { nombre, ubicacion, descripcion, capacidad, precio_noche, descuento, imagenes, servicios_ids } = nuevaFinca;
 
     if (!nombre?.trim() || !ubicacion?.trim() || !precio_noche?.toString().trim()) {
       alert('Por favor, rellene los campos obligatorios (*)');
@@ -147,6 +149,7 @@ const Fincas = () => {
       descripcion: descripcion?.trim() || '',
       capacidad: capacidad ? parseInt(capacidad, 10) : 0,
       precio_noche: precio,
+      descuento: descuento ? parseInt(descuento, 10) : 0,
       estado: esCreacion ? 'disponible' : undefined,
       imagenes: imagenesValidas.length > 0 ? imagenesValidas : undefined,
       servicios_ids: servicios_ids || [],
@@ -281,7 +284,7 @@ const Fincas = () => {
           </p>
         </div>
         <button
-          onClick={() => { setEditandoId(null); setNuevaFinca({ nombre: '', ubicacion: '', descripcion: '', capacidad: '', precio_noche: '', imagenes: [''], servicios_ids: [] }); setModalAbierto(true); }}
+          onClick={() => { setEditandoId(null); setNuevaFinca({ ...FORMULARIO_VACIO }); setModalAbierto(true); }}
           className="bg-[#0A4D27] hover:bg-[#083e1f] text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-200">
           + Ingresar Nuevo Alojamiento
         </button>
@@ -428,6 +431,21 @@ const Fincas = () => {
                     placeholder="Tarifa en $"
                   />
                 </div>
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-1">
+                  Porcentaje de Descuento (%)
+                </label>
+                <input
+                  type="number"
+                  name="descuento"
+                  min="0"
+                  max="100"
+                  value={nuevaFinca.descuento}
+                  onChange={handleChange}
+                  className="w-full p-2.5 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0A4D27]"
+                  placeholder="0 = sin oferta"
+                />
               </div>
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-1">

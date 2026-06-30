@@ -57,13 +57,7 @@ function PublicHome() {
     const cargarAlojamientos = async () => {
       try {
         const res = await api.get('/public/alojamientos');
-        const lista = (res.data.data || []).map((a) => {
-          const nombre = (a.nombre || '').toLowerCase();
-          if (nombre.includes('cielo mar') || nombre.includes('los calamares')) {
-            return { ...a, descuento: nombre.includes('cielo mar') ? 20 : 15 };
-          }
-          return a;
-        });
+        const lista = res.data.data || [];
         setAlojamientos(lista);
         if (lista.length > 0) {
           setForm((prev) => ({ ...prev, alojamiento_id: String(lista[0].id) }));

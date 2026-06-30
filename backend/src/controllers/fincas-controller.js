@@ -1,8 +1,16 @@
 import pool from '../config/db.js';
 
+const ensureDescuentoColumn = async () => {
+  await pool.query(`
+    ALTER TABLE alojamientos
+    ADD COLUMN IF NOT EXISTS descuento INTEGER NOT NULL DEFAULT 0 CHECK (descuento >= 0 AND descuento <= 100)
+  `);
+};
+
 const fincasController = {
   getAll: async (req, res) => {
     try {
+      await ensureDescuentoColumn();
       const query = `
         SELECT a.*, 
         COALESCE(json_agg(s.*) FILTER (WHERE s.id IS NOT NULL), '[]') AS servicios
@@ -34,6 +42,7 @@ const fincasController = {
       descripcion,
       capacidad,
       precio_noche,
+      descuento,
       servicios,
       servicios_ids,
       imagenes,
@@ -49,6 +58,10 @@ const fincasController = {
 
     const capacidadFinal = capacidad ? parseInt(capacidad, 10) : 0;
 
+    const descuentoFinal = descuento !== undefined && descuento !== null && descuento !== ''
+      ? Math.min(Math.max(parseInt(descuento, 10) || 0, 0), 100)
+      : 0;
+
     const imagenesFinal = Array.isArray(imagenes) && imagenes.length > 0
       ? imagenes.filter((u) => typeof u === 'string' && u.trim().length > 0)
       : ['https://placehold.co/800x600/0A4D27/FFFFFF?text=SENA+RURAL'];
@@ -57,8 +70,8 @@ const fincasController = {
       await pool.query('BEGIN');
 
       const queryFinca = `
-        INSERT INTO alojamientos (nombre, ubicacion, descripcion, capacidad, precio_noche, estado, usuario_id, imagenes) 
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *
+        INSERT INTO alojamientos (nombre, ubicacion, descripcion, capacidad, precio_noche, descuento, estado, usuario_id, imagenes) 
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *
       `;
 
       const resultFinca = await pool.query(queryFinca, [
@@ -67,6 +80,7 @@ const fincasController = {
         descripcion,
         capacidadFinal,
         precioFinal,
+        descuentoFinal,
         'disponible',
         usuario_id,
         imagenesFinal,
@@ -95,7 +109,7 @@ const fincasController = {
 
   update: async (req, res) => {
     const { id } = req.params;
-    const { nombre, ubicacion, descripcion, capacidad, precio_noche, estado, imagenes, servicios_ids } =
+    const { nombre, ubicacion, descripcion, capacidad, precio_noche, descuento, estado, imagenes, servicios_ids } =
       req.body;
 
     const capacidadFinal = capacidad !== undefined && capacidad !== null && capacidad !== ''
@@ -110,6 +124,10 @@ const fincasController = {
       return res.status(400).json({ success: false, error: 'El precio por noche debe ser un número válido mayor a 0' });
     }
 
+    const descuentoFinal = descuento !== undefined && descuento !== null && descuento !== ''
+      ? Math.min(Math.max(parseInt(descuento, 10) || 0, 0), 100)
+      : 0;
+
     const estadoFinal = estado || 'disponible';
 
     const imagenesFinal = Array.isArray(imagenes) && imagenes.length > 0
@@ -121,8 +139,8 @@ const fincasController = {
 
       const query = `
         UPDATE alojamientos 
-        SET nombre = $1, ubicacion = $2, descripcion = $3, capacidad = $4, precio_noche = $5, estado = $6, imagenes = $7
-        WHERE id = $8 RETURNING *
+        SET nombre = $1, ubicacion = $2, descripcion = $3, capacidad = $4, precio_noche = $5, descuento = $6, estado = $7, imagenes = $8
+        WHERE id = $9 RETURNING *
       `;
       const result = await pool.query(query, [
         nombre,
@@ -130,6 +148,7 @@ const fincasController = {
         descripcion,
         capacidadFinal,
         precioFinal,
+        descuentoFinal,
         estadoFinal,
         imagenesFinal,
         id,
