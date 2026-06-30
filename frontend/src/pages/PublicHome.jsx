@@ -335,7 +335,7 @@ function PublicHome() {
 
                   <div className="mt-4 flex flex-wrap gap-2">
                     {alojamiento.servicios?.length > 0 ? (
-                      alojamiento.servicios.map((servicio) => {
+                      [...new Map(alojamiento.servicios.map((s) => [s.id, s])).values()].map((servicio) => {
                         const Icon = ICON_MAP[servicio.icono] || CheckCircle2;
                         return (
                           <span

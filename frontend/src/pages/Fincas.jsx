@@ -139,17 +139,22 @@ const Fincas = () => {
 
     const imagenesValidas = (imagenes || []).filter((u) => u.trim().length > 0);
 
+    const esCreacion = editandoId === null || editandoId === undefined;
+
     const payload = {
       nombre: nombre.trim(),
       ubicacion: ubicacion.trim(),
       descripcion: descripcion?.trim() || '',
       capacidad: capacidad ? parseInt(capacidad, 10) : 0,
       precio_noche: precio,
+      estado: esCreacion ? 'disponible' : undefined,
       imagenes: imagenesValidas.length > 0 ? imagenesValidas : undefined,
       servicios_ids: servicios_ids || [],
     };
 
-    const esCreacion = editandoId === null || editandoId === undefined;
+    if (!esCreacion) {
+      delete payload.estado;
+    }
 
     try {
       if (esCreacion) {

@@ -98,6 +98,20 @@ const fincasController = {
     const { nombre, ubicacion, descripcion, capacidad, precio_noche, estado, imagenes, servicios_ids } =
       req.body;
 
+    const capacidadFinal = capacidad !== undefined && capacidad !== null && capacidad !== ''
+      ? parseInt(capacidad, 10)
+      : 0;
+
+    const precioFinal = precio_noche !== undefined && precio_noche !== null && precio_noche !== ''
+      ? parseFloat(precio_noche)
+      : 0;
+
+    if (isNaN(precioFinal) || precioFinal <= 0) {
+      return res.status(400).json({ success: false, error: 'El precio por noche debe ser un número válido mayor a 0' });
+    }
+
+    const estadoFinal = estado || 'disponible';
+
     const imagenesFinal = Array.isArray(imagenes) && imagenes.length > 0
       ? imagenes.filter((u) => typeof u === 'string' && u.trim().length > 0)
       : ['https://placehold.co/800x600/0A4D27/FFFFFF?text=SENA+RURAL'];
@@ -114,9 +128,9 @@ const fincasController = {
         nombre,
         ubicacion,
         descripcion,
-        capacidad,
-        precio_noche,
-        estado,
+        capacidadFinal,
+        precioFinal,
+        estadoFinal,
         imagenesFinal,
         id,
       ]);
