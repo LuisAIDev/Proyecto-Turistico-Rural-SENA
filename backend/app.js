@@ -9,6 +9,7 @@ import huespedesRoutes from './src/routes/huespedes-routes.js';
 import serviciosRoutes from './src/routes/servicios.js';
 import pagosRoutes from './src/routes/pagos-routes.js';
 import publicRoutes from './src/routes/public-routes.js';
+import valoracionesRoutes from './src/routes/valoraciones-routes.js';
 
 dotenv.config();
 
@@ -38,6 +39,7 @@ app.use('/api/reservas', reservasRoutes);
 app.use('/api/huespedes', huespedesRoutes);
 app.use('/api/servicios', serviciosRoutes);
 app.use('/api/pagos', pagosRoutes);
+app.use('/api/valoraciones', valoracionesRoutes);
 
 app.use((req, res, next) => {
   res.status(404).json({ error: 'Ruta no encontrada en el ecosistema SENA RURAL' });

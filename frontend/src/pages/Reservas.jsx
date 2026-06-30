@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import api from '../services/api';
-import { PlusCircle, CheckCircle, XCircle, Trash2, CreditCard } from 'lucide-react';
+import { PlusCircle, CheckCircle, XCircle, Trash2, CreditCard, Star } from 'lucide-react';
 import CheckoutForm from '../components/CheckoutForm';
+import ReviewForm from '../components/ReviewForm';
 
 /**
  * ==========================================
@@ -47,6 +48,7 @@ function Reservas() {
     fecha_salida: '',
   });
   const [pagoReserva, setPagoReserva] = useState(null);
+  const [reviewReserva, setReviewReserva] = useState(null);
 
   const cargarDatos = async () => {
     setLoading(true);
@@ -124,6 +126,11 @@ function Reservas() {
     cargarDatos();
   };
 
+  const handleReviewExitoso = () => {
+    setReviewReserva(null);
+    cargarDatos();
+  };
+
   const hoy = new Date().toISOString().split('T')[0];
 
   if (loading)
@@ -187,6 +194,15 @@ function Reservas() {
                             >
                               <CreditCard size={12} />
                               Pagar
+                            </button>
+                          )}
+                          {r.estado === 'confirmada' && (
+                            <button
+                              onClick={() => setReviewReserva(r)}
+                              className="bg-amber-500 text-white px-3 py-1.5 rounded-xl text-xs font-black hover:bg-amber-400 transition-colors flex items-center gap-1"
+                            >
+                              <Star size={12} />
+                              Calificar
                             </button>
                           )}
                           <button onClick={() => cambiarEstado(r.id, 'confirmar')}>
@@ -293,6 +309,14 @@ function Reservas() {
           reserva={pagoReserva}
           onClose={() => setPagoReserva(null)}
           onSuccess={handlePagoExitoso}
+        />
+      )}
+
+      {reviewReserva && (
+        <ReviewForm
+          reserva={reviewReserva}
+          onClose={() => setReviewReserva(null)}
+          onSuccess={handleReviewExitoso}
         />
       )}
     </div>
