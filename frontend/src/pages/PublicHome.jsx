@@ -17,6 +17,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Star,
+  Tag,
 } from 'lucide-react';
 import api from '../services/api';
 import heroImage from '../assets/hero.png';
@@ -50,12 +51,19 @@ function PublicHome() {
   const [galeriaAlojamiento, setGaleriaAlojamiento] = useState(null);
   const [galeriaIndice, setGaleriaIndice] = useState(0);
   const [showMisReservas, setShowMisReservas] = useState(false);
+  const [soloOfertas, setSoloOfertas] = useState(false);
 
   useEffect(() => {
     const cargarAlojamientos = async () => {
       try {
         const res = await api.get('/public/alojamientos');
-        const lista = res.data.data || [];
+        const lista = (res.data.data || []).map((a) => {
+          const nombre = (a.nombre || '').toLowerCase();
+          if (nombre.includes('cielo mar') || nombre.includes('los calamares')) {
+            return { ...a, descuento: nombre.includes('cielo mar') ? 20 : 15 };
+          }
+          return a;
+        });
         setAlojamientos(lista);
         if (lista.length > 0) {
           setForm((prev) => ({ ...prev, alojamiento_id: String(lista[0].id) }));
@@ -72,6 +80,16 @@ function PublicHome() {
 
     cargarAlojamientos();
   }, []);
+
+  const alojamientosFiltrados = useMemo(
+    () => soloOfertas ? alojamientos.filter((a) => a.descuento) : alojamientos,
+    [alojamientos, soloOfertas],
+  );
+
+  const ofertasActivas = useMemo(
+    () => alojamientos.filter((a) => a.descuento),
+    [alojamientos],
+  );
 
   const alojamientoSeleccionado = useMemo(
     () => alojamientos.find((item) => String(item.id) === form.alojamiento_id),
@@ -211,9 +229,24 @@ function PublicHome() {
                 administrador.
               </p>
             </div>
-            <span className="text-sm font-bold text-green-700">
-              {alojamientos.length} opciones activas
-            </span>
+            <div className="flex items-center gap-3">
+              {ofertasActivas.length > 0 && (
+                <button
+                  onClick={() => setSoloOfertas((v) => !v)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-black uppercase tracking-wider transition-all ${
+                    soloOfertas
+                      ? 'bg-red-500 text-white shadow-lg shadow-red-200 scale-105'
+                      : 'bg-red-50 text-red-600 hover:bg-red-100 border border-red-200'
+                  }`}
+                >
+                  <Tag size={15} />
+                  {soloOfertas ? 'Todas' : `Ofertas (${ofertasActivas.length})`}
+                </button>
+              )}
+              <span className="text-sm font-bold text-green-700">
+                {soloOfertas ? `${alojamientosFiltrados.length} en oferta` : `${alojamientos.length} opciones activas`}
+              </span>
+            </div>
           </div>
 
           {cargando ? (
@@ -222,11 +255,17 @@ function PublicHome() {
             </div>
           ) : (
             <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-              {alojamientos.map((alojamiento) => (
+              {alojamientosFiltrados.map((alojamiento) => (
                 <article
                   key={alojamiento.id}
                   className="rounded-md border border-green-100 bg-white shadow-sm">
                   <div className="relative aspect-[16/9] overflow-hidden rounded-t-md bg-slate-100">
+                    {alojamiento.descuento && (
+                      <div className="absolute top-3 left-3 z-10 bg-red-500 text-white text-xs font-black px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1">
+                        <Tag size={12} />
+                        -{alojamiento.descuento}% OFF
+                      </div>
+                    )}
                     <img
                       src={alojamiento.imagenes?.[0] || PLACEHOLDER_IMG}
                       alt={alojamiento.nombre}
@@ -276,8 +315,21 @@ function PublicHome() {
                       <Users size={17} className="text-green-700" />
                       Hasta {alojamiento.capacidad || 0} personas
                     </span>
-                    <span className="text-lg font-black text-green-700">
-                      ${Number(alojamiento.precio_noche).toLocaleString('es-CO')}
+                    <span className="text-right">
+                      {alojamiento.descuento ? (
+                        <>
+                          <span className="block text-xs font-bold text-gray-400 line-through">
+                            ${Number(alojamiento.precio_noche).toLocaleString('es-CO')}
+                          </span>
+                          <span className="text-lg font-black text-red-500">
+                            ${(Number(alojamiento.precio_noche) * (1 - alojamiento.descuento / 100)).toLocaleString('es-CO')}
+                          </span>
+                        </>
+                      ) : (
+                        <span className="text-lg font-black text-green-700">
+                          ${Number(alojamiento.precio_noche).toLocaleString('es-CO')}
+                        </span>
+                      )}
                     </span>
                   </div>
 
