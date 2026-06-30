@@ -12,6 +12,12 @@ const reservasController = {
       const limite = Math.min(Math.max(parseInt(req.query.limite) || 50, 1), 200);
       const offset = (pagina - 1) * limite;
 
+      await pool.query(`
+        ALTER TABLE reservas
+        ADD COLUMN IF NOT EXISTS estado_pago VARCHAR(30) NOT NULL DEFAULT 'Pendiente',
+        ADD COLUMN IF NOT EXISTS transaccion_id VARCHAR(50) NULL
+      `);
+
       const countResult = await pool.query('SELECT COUNT(*) FROM reservas');
       const total = parseInt(countResult.rows[0].count);
 
@@ -48,7 +54,7 @@ const reservasController = {
       });
 
     } catch (error) {
-      console.error('Error al obtener reservas:', error.message);
+      console.error('ERROR CRÍTICO EN GET RESERVAS:', error.message);
       res.status(500).json({ error: 'Error al obtener reservas' });
     }
   },
