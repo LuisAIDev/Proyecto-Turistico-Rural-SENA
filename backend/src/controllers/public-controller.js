@@ -3,9 +3,22 @@ import { differenceInCalendarDays, isFuture, parseISO } from 'date-fns';
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+const ensureValoracionesTable = async () => {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS valoraciones (
+      id SERIAL PRIMARY KEY,
+      reserva_id INTEGER NOT NULL REFERENCES reservas(id) ON DELETE CASCADE,
+      calificacion INTEGER NOT NULL CHECK (calificacion BETWEEN 1 AND 5),
+      comentario TEXT,
+      creado_en TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+};
+
 const publicController = {
   getAlojamientos: async (req, res) => {
     try {
+      await ensureValoracionesTable();
       const result = await pool.query(`
         SELECT
           a.id,
@@ -16,10 +29,14 @@ const publicController = {
           a.precio_noche,
           a.estado,
           a.imagenes,
-          COALESCE(json_agg(s.*) FILTER (WHERE s.id IS NOT NULL), '[]') AS servicios
+          COALESCE(json_agg(s.*) FILTER (WHERE s.id IS NOT NULL), '[]') AS servicios,
+          COALESCE(ROUND(AVG(v.calificacion), 1), 0)::float AS rating_promedio,
+          COUNT(v.id)::int AS total_valoraciones
         FROM alojamientos a
         LEFT JOIN alojamiento_servicios aser ON a.id = aser.alojamiento_id
         LEFT JOIN servicios_adicionales s ON aser.servicio_id = s.id
+        LEFT JOIN reservas r ON r.alojamiento_id = a.id AND r.estado = 'confirmada'
+        LEFT JOIN valoraciones v ON v.reserva_id = r.id
         WHERE a.estado = 'disponible'
         GROUP BY a.id
         ORDER BY a.precio_noche ASC
@@ -183,6 +200,71 @@ const publicController = {
       res.status(500).json({
         success: false,
         error: 'No se pudo registrar la solicitud de reserva.',
+      });
+    }
+  },
+
+  consultarReservasCliente: async (req, res) => {
+    try {
+      const { email, documento } = req.body;
+
+      if (!email && !documento) {
+        return res.status(400).json({
+          success: false,
+          error: 'Debes proporcionar tu correo electrónico o número de documento.',
+        });
+      }
+
+      let huespedQuery;
+      let params;
+      if (documento) {
+        huespedQuery = 'SELECT id, nombre FROM huespedes WHERE documento = $1';
+        params = [documento.trim()];
+      } else {
+        huespedQuery = 'SELECT id, nombre FROM huespedes WHERE email = $1';
+        params = [email.trim().toLowerCase()];
+      }
+
+      const huesped = await pool.query(huespedQuery, params);
+
+      if (huesped.rowCount === 0) {
+        return res.json({
+          success: true,
+          data: [],
+          mensaje: 'No encontramos reservas asociadas a ese dato.',
+        });
+      }
+
+      const reservas = await pool.query(`
+        SELECT
+          r.id,
+          r.fecha_entrada,
+          r.fecha_salida,
+          r.estado,
+          r.estado_pago,
+          r.total_pago,
+          r.noches,
+          a.nombre AS alojamiento_nombre,
+          a.id AS alojamiento_id,
+          v.id AS valoracion_id,
+          v.calificacion AS valoracion_calificacion
+        FROM reservas r
+        JOIN alojamientos a ON r.alojamiento_id = a.id
+        LEFT JOIN valoraciones v ON v.reserva_id = r.id
+        WHERE r.huesped_id = $1
+        ORDER BY r.created_at DESC
+      `, [huesped.rows[0].id]);
+
+      res.json({
+        success: true,
+        data: reservas.rows,
+        huesped: huesped.rows[0],
+      });
+    } catch (error) {
+      console.error('Error al consultar reservas del cliente:', error.message);
+      res.status(500).json({
+        success: false,
+        error: 'Error al consultar tus reservas. Intenta de nuevo.',
       });
     }
   },

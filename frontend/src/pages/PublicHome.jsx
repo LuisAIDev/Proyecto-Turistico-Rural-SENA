@@ -16,9 +16,11 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
+  Star,
 } from 'lucide-react';
 import api from '../services/api';
 import heroImage from '../assets/hero.png';
+import MisReservasModal from '../components/MisReservasModal';
 
 const ICON_MAP = {
   wifi: Wifi,
@@ -47,6 +49,7 @@ function PublicHome() {
   const [enviando, setEnviando] = useState(false);
   const [galeriaAlojamiento, setGaleriaAlojamiento] = useState(null);
   const [galeriaIndice, setGaleriaIndice] = useState(0);
+  const [showMisReservas, setShowMisReservas] = useState(false);
 
   useEffect(() => {
     const cargarAlojamientos = async () => {
@@ -145,6 +148,13 @@ function PublicHome() {
             <a href="#reserva" className="hidden text-slate-600 hover:text-green-700 sm:inline">
               Reservar
             </a>
+            <button
+              onClick={() => setShowMisReservas(true)}
+              className="hidden sm:inline-flex items-center gap-1.5 text-slate-600 hover:text-green-700"
+            >
+              <Star size={15} />
+              Mis Reservas
+            </button>
             <Link
               to="/login"
               className="rounded-md bg-green-700 px-4 py-2 text-white shadow-sm hover:bg-green-800">
@@ -243,6 +253,23 @@ function PublicHome() {
                   <p className="mt-4 min-h-16 text-sm leading-6 text-slate-600">
                     {alojamiento.descripcion || 'Alojamiento rural con servicios para descanso y turismo local.'}
                   </p>
+
+                  {alojamiento.total_valoraciones > 0 && (
+                    <div className="mt-3 flex items-center gap-2">
+                      <div className="flex gap-0.5">
+                        {[1, 2, 3, 4, 5].map((n) => (
+                          <Star
+                            key={n}
+                            size={14}
+                            className={n <= Math.round(alojamiento.rating_promedio || 0) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}
+                          />
+                        ))}
+                      </div>
+                      <span className="text-xs font-bold text-gray-500">
+                        {alojamiento.rating_promedio} ({alojamiento.total_valoraciones} {alojamiento.total_valoraciones === 1 ? 'opinión' : 'opiniones'})
+                      </span>
+                    </div>
+                  )}
 
                   <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-4">
                     <span className="flex items-center gap-2 text-sm font-bold text-slate-600">
@@ -383,6 +410,10 @@ function PublicHome() {
           </div>
         </section>
       </main>
+
+      {showMisReservas && (
+        <MisReservasModal onClose={() => setShowMisReservas(false)} />
+      )}
 
       {/* MODAL GALERÍA PÚBLICA */}
       {galeriaAlojamiento && (
